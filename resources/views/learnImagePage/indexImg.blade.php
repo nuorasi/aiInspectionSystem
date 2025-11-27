@@ -100,7 +100,7 @@
 
         const dz = new Dropzone("#learn-dropzone", {
             paramName: "file",
-            maxFilesize: 50,            // or whatever MB limit you decided
+            maxFilesize: 200,            // or whatever MB limit you decided
             acceptedFiles: "image/*",
             headers: {
                 "X-CSRF-TOKEN": "{{ csrf_token() }}"

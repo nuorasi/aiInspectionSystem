@@ -9,15 +9,12 @@ class PhotoUploadController extends Controller
 {
     public function store(Request $request)
     {
-        // Validate file
         $request->validate([
-            'file' => 'required|image|mimes:jpg,jpeg,png,gif|max:204800', // 5MB
+            // allow big images and common formats
+            'file' => 'required|mimes:jpg,jpeg,png,gif,webp|max:204800', // 200 MB
         ]);
 
-        // Store in storage/app/public/uploads
         $path = $request->file('file')->store('uploads', 'public');
-
-        // You can save $path to DB here if you like
 
         return response()->json([
             'success' => true,
@@ -25,4 +22,5 @@ class PhotoUploadController extends Controller
             'url'     => asset('storage/' . $path),
         ]);
     }
+
 }
