@@ -1,5 +1,5 @@
 <?php
-
+use App\Http\Controllers\PhotoUploadController;
 use App\Http\Controllers\AnalyzeImageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewYourImagesController;
@@ -24,5 +24,18 @@ Route::middleware('auth')->group(function () {
 Route::get('/analyzeImagePage', [AnalyzeImageController::class, 'indexAi'])->name('analyzeImagePage.indexAi');
 Route::get('/learnImagePage', [LearnImageController::class, 'indexImg'])->name('learnImagePage.indexImg');
 Route::get('/reviewYourImagesPage', [ReviewYourImagesController::class, 'indexRyi'])->name('reviewYourImagesPage.indexRyi');
+
+
+
+
+
+Route::post('/upload-photo', [PhotoUploadController::class, 'store'])
+    ->name('photos.upload');
+
+Route::get('/photos/upload', function () {
+    return view('photos.upload');
+})->name('photos.upload.form');
+
+
 
 require __DIR__.'/auth.php';

@@ -13,6 +13,17 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <!-- Dropzone CSS -->
+        <link
+            rel="stylesheet"
+            href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css"
+        />
+
+        <!-- Dropzone JS -->
+        <script
+            src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js">
+        </script>
+
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100">
