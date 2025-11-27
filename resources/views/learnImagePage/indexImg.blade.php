@@ -100,7 +100,7 @@
 
         const dz = new Dropzone("#learn-dropzone", {
             paramName: "file",
-            maxFilesize: 50,
+            maxFilesize: 50,            // or whatever MB limit you decided
             acceptedFiles: "image/*",
             headers: {
                 "X-CSRF-TOKEN": "{{ csrf_token() }}"
@@ -114,24 +114,19 @@
                 const uploadAnotherBtn = document.getElementById('upload-another-btn');
                 const dzMessage = document.querySelector('#learn-dropzone .dz-message');
 
-                // When sending starts
                 this.on("sending", function () {
-                    // Make sure dropzone is visible if user chose "upload another"
                     dropzoneWrapper.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
-
                     spinner.classList.remove('hidden');
                     statusEl.textContent = 'Uploading file...';
                 });
 
-                // When upload succeeds
                 this.on("success", function (file, response) {
-                    // Remove the default Dropzone thumbnail / preview
+                    // Remove dropzone thumbnail
                     this.removeFile(file);
 
-                    // Hide spinner
                     spinner.classList.add('hidden');
 
-                    // Compute file size
+                    // Compute file size for display
                     const bytes = file.size;
                     let sizeText;
                     if (bytes > 1024 * 1024) {
@@ -140,94 +135,84 @@
                         sizeText = (bytes / 1024).toFixed(2) + ' KB';
                     }
 
-                    // File date from client side
                     const fileDate = new Date(file.lastModified || Date.now());
                     const dateText = fileDate.toLocaleString();
 
                     statusEl.textContent =
                         'File was loaded successfully. Size: ' + sizeText + '. Date: ' + dateText + '.';
 
-                    // Show full width image below the dropzone
+                    // Show full width image
                     imageEl.src = response.url;
                     imageWrapper.classList.remove('hidden');
 
-                    // Update the message text inside the dropzone
                     if (dzMessage) {
-                        dzMessage.textContent = 'File uploaded. Use "Upload another file" if you want to add more images for the AI engine to learn.';
+                        dzMessage.textContent =
+                            'File uploaded. Use "Upload another file" if you want to add more images for the AI engine to learn.';
                     }
 
-                    // Fade out the dropzone
                     dropzoneWrapper.classList.add('opacity-0', 'pointer-events-none');
                     setTimeout(function () {
                         dropzoneWrapper.classList.add('hidden');
-                    }, 500); // match transition duration
+                    }, 500);
 
-                    // Show the "Upload another file" button
                     uploadAnotherBtn.classList.remove('hidden');
                 });
 
-                // // When there is an error
-                // this.on("error", function (file, errorMessage) {
-                //     spinner.classList.add('hidden');
-                //     statusEl.textContent = 'Error uploading file: ' + errorMessage;
-                // });
-
+                // IMPORTANT: new error handler
                 this.on("error", function (file, errorMessage, xhr) {
                     spinner.classList.add('hidden');
 
                     let msg = 'Error uploading file.';
 
-                    // If Laravel returned JSON
                     if (xhr && xhr.responseText) {
+                        // Try to parse JSON from Laravel
                         try {
                             const res = JSON.parse(xhr.responseText);
 
-                            // Typical Laravel validation structure
                             if (res.errors && res.errors.file && res.errors.file.length) {
                                 msg = res.errors.file[0];
                             } else if (res.message) {
                                 msg = res.message;
                             } else {
-                                msg = xhr.status + ' ' + xhr.statusText;
+                                msg = 'Server error: ' + xhr.status + ' ' + xhr.statusText;
                             }
                         } catch (e) {
-                            // Not JSON, just use raw text
-                            msg = xhr.responseText;
+                            // Not JSON, show a trimmed version of the raw response
+                            msg = xhr.responseText.substring(0, 200);
                         }
                     } else if (typeof errorMessage === 'string') {
                         msg = errorMessage;
-                    } else if (typeof errorMessage === 'object' && errorMessage.message) {
-                        msg = errorMessage.message;
+                    } else if (typeof errorMessage === 'object') {
+                        // Fall back to JSON string so we never see [object Object]
+                        msg = JSON.stringify(errorMessage);
                     }
 
-                    statusEl.textContent = msg;
+                    statusEl.textContent = 'Error uploading file: ' + msg;
 
-                    // For debugging in the browser console
-                    console.error('Dropzone error', { file, errorMessage, xhr });
+                    console.error('Dropzone error details:', {
+                        file,
+                        errorMessage,
+                        xhr
+                    });
                 });
 
-
-                // Upload another file button click handler
                 uploadAnotherBtn.addEventListener('click', function () {
-                    // Reset status text
                     statusEl.textContent = '';
 
-                    // Show dropzone again (fade in)
                     dropzoneWrapper.classList.remove('hidden');
-                    // Tiny timeout so the browser can apply the class and transition works
                     setTimeout(function () {
                         dropzoneWrapper.classList.remove('opacity-0', 'pointer-events-none');
                     }, 10);
 
-                    // Update message back to original prompt
                     if (dzMessage) {
-                        dzMessage.textContent = 'Please drop photos here that you would like the AI engine to learn. You can also click to browse for files.';
+                        dzMessage.textContent =
+                            'Please drop photos here that you would like the AI engine to learn. You can also click to browse for files.';
                     }
 
-                    // Hide the button until next successful upload
                     uploadAnotherBtn.classList.add('hidden');
                 });
             }
         });
     </script>
+
 </x-app-layout>
