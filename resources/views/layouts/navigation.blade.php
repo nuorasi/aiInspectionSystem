@@ -15,6 +15,19 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('analyzeImagePage.indexAi')" :active="request()->routeIs('analyzeImagePage.indexAi')">
+                        Students
+                    </x-nav-link>
+                    {{--                    <x-nav-link :href="route('studentsPage.data')" :active="request()->routeIs('studentsPage.data')">--}}
+                    {{--                        Students Data--}}
+                    {{--                    </x-nav-link>--}}
+
+                    <x-nav-link :href="route('teachImagePage.indexTi')" :active="request()->routeIs('teachImagePage.indexTi')">
+                        Absences
+                    </x-nav-link>
+                    <x-nav-link :href="route('reviewYourImagesPage.indexRyi')" :active="request()->routeIs('reviewYourImagesPage.indexRyi')">
+                        Failing Grades
+                    </x-nav-link>
                 </div>
             </div>
 
