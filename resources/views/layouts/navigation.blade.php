@@ -17,18 +17,33 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('analyzeImagePage.indexAi')" :active="request()->routeIs('analyzeImagePage.indexAi')" class="text-white">
+
+                    <x-nav-link
+                        :href="route('analyzeImagePage.indexAi')"
+                        :active="request()->routeIs('analyzeImagePage.indexAi')"
+                        class="text-white hover:text-orange-500"
+                    >
                         Analyze an Image
                     </x-nav-link>
 
-                    <x-nav-link :href="route('learnImagePage.indexTi')" :active="request()->routeIs('learnImagePage.indexTi')" class="text-white">
+                    <x-nav-link
+                        :href="route('learnImagePage.indexTi')"
+                        :active="request()->routeIs('learnImagePage.indexTi')"
+                        class="text-white hover:text-orange-500"
+                    >
                         Learn an Image
                     </x-nav-link>
 
-                    <x-nav-link :href="route('reviewYourImagesPage.indexRyi')" :active="request()->routeIs('reviewYourImagesPage.indexRyi')" class="text-white">
+                    <x-nav-link
+                        :href="route('reviewYourImagesPage.indexRyi')"
+                        :active="request()->routeIs('reviewYourImagesPage.indexRyi')"
+                        class="text-white hover:text-orange-500"
+                    >
                         Review Your Images
                     </x-nav-link>
+
                 </div>
+
             </div>
 
             <!-- Settings Dropdown -->
