@@ -11,7 +11,7 @@ class PhotoUploadController extends Controller
     {
         // Validate file
         $request->validate([
-            'file' => 'required|image|mimes:jpg,jpeg,png,gif|max:5120', // 5MB
+            'file' => 'required|image|mimes:jpg,jpeg,png,gif|max:204800', // 5MB
         ]);
 
         // Store in storage/app/public/uploads
