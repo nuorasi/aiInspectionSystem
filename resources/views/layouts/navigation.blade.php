@@ -21,7 +21,7 @@
                     <x-nav-link
                         :href="route('analyzeImagePage.indexAi')"
                         :active="request()->routeIs('analyzeImagePage.indexAi')"
-                        class="text-white hover:text-orange-500"
+                        class="text-white hover:text-orange-300"
                     >
                         Analyze an Image
                     </x-nav-link>
@@ -29,7 +29,7 @@
                     <x-nav-link
                         :href="route('learnImagePage.indexTi')"
                         :active="request()->routeIs('learnImagePage.indexTi')"
-                        class="text-white hover:text-orange-500"
+                        class="text-white hover:text-orange-300"
                     >
                         Learn an Image
                     </x-nav-link>
@@ -37,7 +37,7 @@
                     <x-nav-link
                         :href="route('reviewYourImagesPage.indexRyi')"
                         :active="request()->routeIs('reviewYourImagesPage.indexRyi')"
-                        class="text-white hover:text-orange-500"
+                        class="text-white hover:text-orange-300"
                     >
                         Review Your Images
                     </x-nav-link>
