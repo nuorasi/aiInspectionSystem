@@ -22,7 +22,7 @@ Route::middleware('auth')->group(function () {
 
 
 Route::get('/analyzeImagePage', [AnalyzeImageController::class, 'indexAi'])->name('analyzeImagePage.indexAi');
-Route::get('/learnImagePage', [LearnImageController::class, 'indexTi'])->name('learnImagePage.indexTi');
+Route::get('/learnImagePage', [LearnImageController::class, 'indexImg'])->name('learnImagePage.indexImg');
 Route::get('/reviewYourImagesPage', [ReviewYourImagesController::class, 'indexRyi'])->name('reviewYourImagesPage.indexRyi');
 
 require __DIR__.'/auth.php';
