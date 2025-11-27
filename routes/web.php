@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Controllers\AnalyzeImageController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReviewYourImagesController;
+use App\Http\Controllers\TeachImageController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
