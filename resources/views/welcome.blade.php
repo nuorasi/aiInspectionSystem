@@ -11,12 +11,16 @@
 <!-- Top Navigation -->
 <nav class="bg-[#262626] text-white w-full shadow-sm">
     <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <div class="font-semibold text-lg">  <img src="/images/victaulicLogo.png" alt="Centered Image" style="width:126px;"></div>
-
+        <div class="font-semibold text-lg">
+            <a href="/">
+                <img src="/images/victaulicLogo_200.png"
+                     alt="Home"
+                     style="width:135px;">
+            </a>
+        </div>
         <ul class="flex gap-6 text-sm">
-            <li><a href="#" class="hover:underline">Home</a></li>
-            <li><a href="#" class="hover:underline">About</a></li>
             <li><a href="login" class="hover:underline">Login</a></li>
+            <li><a href="register" class="hover:underline">Register</a></li>
         </ul>
     </div>
 </nav>
