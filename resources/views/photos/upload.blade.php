@@ -1,51 +1,64 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Upload Photos</title>
 
-@section('content')
-    <div class="container">
-        <h1>Upload Photos</h1>
+    <!-- Dropzone CSS -->
+    <link rel="stylesheet"
+          href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css"/>
 
-        <form
-            action="{{ route('photos.upload') }}"
-            method="post"
-            class="dropzone"
-            id="my-awesome-dropzone"
-        >
-            @csrf
-        </form>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        #uploaded-images img {
+            max-width: 200px;
+            margin: 10px;
+        }
+    </style>
+</head>
 
-        <div id="uploaded-images" class="mt-4"></div>
-    </div>
-@endsection
+<body>
 
-@section('scripts')
-    <script>
-        // Tell Dropzone not to auto discover all forms with class 'dropzone'
-        Dropzone.autoDiscover = false;
+<h1>Upload Photos</h1>
 
-        const myDropzone = new Dropzone("#my-awesome-dropzone", {
-            paramName: "file",              // The name that will be used to transfer the file
-            maxFilesize: 5,                 // MB
-            acceptedFiles: "image/*",
-            addRemoveLinks: true,
-            timeout: 0,                     // Disable timeout for large files if needed
-            headers: {
-                "X-CSRF-TOKEN": "{{ csrf_token() }}"
-            },
-            init: function() {
-                this.on("success", function(file, response) {
-                    // Optional: show uploaded image below
-                    const container = document.getElementById('uploaded-images');
-                    const img = document.createElement('img');
-                    img.src = response.url;
-                    img.style.maxWidth = '200px';
-                    img.style.marginRight = '10px';
-                    container.appendChild(img);
-                });
+<form
+    action="{{ route('photos.upload') }}"
+    method="post"
+    class="dropzone"
+    id="my-dropzone"
+>
+    @csrf
+</form>
 
-                this.on("error", function(file, errorMessage) {
-                    console.error(errorMessage);
-                });
-            }
-        });
-    </script>
-@endsection
+<div id="uploaded-images" class="mt-4"></div>
+
+<!-- Dropzone JS -->
+<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+
+<script>
+    // Disable auto discover
+    Dropzone.autoDiscover = false;
+
+    const dz = new Dropzone("#my-dropzone", {
+        paramName: "file",
+        maxFilesize: 5,
+        acceptedFiles: "image/*",
+        headers: {
+            "X-CSRF-TOKEN": "{{ csrf_token() }}"
+        },
+        init: function () {
+            this.on("success", function (file, response) {
+                const container = document.getElementById('uploaded-images');
+                const img = document.createElement('img');
+                img.src = response.url;
+                container.appendChild(img);
+            });
+        }
+    });
+</script>
+
+</body>
+</html>
