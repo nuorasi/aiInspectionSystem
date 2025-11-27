@@ -1,8 +1,19 @@
-@extends('layouts.app')
+{{-- resources/views/reviewYourImagesPage/indexRyi.blade.php --}}
 
-@section('content')
-    <div class="text-center text-white">
-        <h1 class="text-4xl font-bold">Learn a new image</h1>
-        <p class="mt-4">This is a custom Blade page.</p>
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            {{ __('Review Your Images') }}
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900 dark:text-gray-100">
+                    Your Learn Your Images content goes here.
+                </div>
+            </div>
+        </div>
     </div>
-@endsection
+</x-app-layout>
