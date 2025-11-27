@@ -14,7 +14,8 @@ class ReviewYourImagesController extends Controller
         Log::info('IN indexAi ident 112722d ' );
 
         // return $this->apiResponse(200, 'Success', ['oAuthTestResponse' => $oneRosterBearerToken[0]->tokenValue]);
-        return 'reviewYourImagesPage.indexRyi';
+        return view('reviewYourImagesPage.indexRyi');
+
     }
 
 }
