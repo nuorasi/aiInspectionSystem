@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Storage;
 
 class PhotoUploadController extends Controller
 {
-    public function store(Request $request)
+    public function store(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             // allow big images and common formats
