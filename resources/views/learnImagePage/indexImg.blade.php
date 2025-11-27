@@ -100,7 +100,7 @@
 
         const dz = new Dropzone("#learn-dropzone", {
             paramName: "file",
-            maxFilesize: 5,
+            maxFilesize: 50,
             acceptedFiles: "image/*",
             headers: {
                 "X-CSRF-TOKEN": "{{ csrf_token() }}"
@@ -166,11 +166,46 @@
                     uploadAnotherBtn.classList.remove('hidden');
                 });
 
-                // When there is an error
-                this.on("error", function (file, errorMessage) {
+                // // When there is an error
+                // this.on("error", function (file, errorMessage) {
+                //     spinner.classList.add('hidden');
+                //     statusEl.textContent = 'Error uploading file: ' + errorMessage;
+                // });
+
+                this.on("error", function (file, errorMessage, xhr) {
                     spinner.classList.add('hidden');
-                    statusEl.textContent = 'Error uploading file: ' + errorMessage;
+
+                    let msg = 'Error uploading file.';
+
+                    // If Laravel returned JSON
+                    if (xhr && xhr.responseText) {
+                        try {
+                            const res = JSON.parse(xhr.responseText);
+
+                            // Typical Laravel validation structure
+                            if (res.errors && res.errors.file && res.errors.file.length) {
+                                msg = res.errors.file[0];
+                            } else if (res.message) {
+                                msg = res.message;
+                            } else {
+                                msg = xhr.status + ' ' + xhr.statusText;
+                            }
+                        } catch (e) {
+                            // Not JSON, just use raw text
+                            msg = xhr.responseText;
+                        }
+                    } else if (typeof errorMessage === 'string') {
+                        msg = errorMessage;
+                    } else if (typeof errorMessage === 'object' && errorMessage.message) {
+                        msg = errorMessage.message;
+                    }
+
+                    statusEl.textContent = msg;
+
+                    // For debugging in the browser console
+                    console.error('Dropzone error', { file, errorMessage, xhr });
                 });
+
 
                 // Upload another file button click handler
                 uploadAnotherBtn.addEventListener('click', function () {
