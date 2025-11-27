@@ -3,7 +3,7 @@
 use App\Http\Controllers\AnalyzeImageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewYourImagesController;
-use App\Http\Controllers\TeachImageController;
+use App\Http\Controllers\LearnImageController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -22,7 +22,7 @@ Route::middleware('auth')->group(function () {
 
 
 Route::get('/analyzeImagePage', [AnalyzeImageController::class, 'indexAi'])->name('analyzeImagePage.indexAi');
-Route::get('/teachImagePage', [TeachImageController::class, 'indexTi'])->name('teachImagePage.indexTi');
+Route::get('/learnImagePage', [LearnImageController::class, 'indexTi'])->name('learnImagePage.indexTi');
 Route::get('/reviewYourImagesPage', [ReviewYourImagesController::class, 'indexRyi'])->name('reviewYourImagesPage.indexRyi');
 
 require __DIR__.'/auth.php';

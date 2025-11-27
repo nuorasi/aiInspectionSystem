@@ -22,7 +22,7 @@
                     {{--                        Students Data--}}
                     {{--                    </x-nav-link>--}}
 
-                    <x-nav-link :href="route('teachImagePage.indexTi')" :active="request()->routeIs('teachImagePage.indexTi')">
+                    <x-nav-link :href="route('learnImagePage.indexTi')" :active="request()->routeIs('learnImagePage.indexTi')">
                         Learn an Image
                     </x-nav-link>
                     <x-nav-link :href="route('reviewYourImagesPage.indexRyi')" :active="request()->routeIs('reviewYourImagesPage.indexRyi')">
