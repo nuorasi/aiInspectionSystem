@@ -74,7 +74,7 @@
     <style>
         /* Custom Dropzone styling integrated with Tailwind container */
         #learn-dropzone {
-            width: 95vw;
+            width: 90vw;
             max-width: 100%;
             margin: 0 auto;
             border: 2px dashed #9ca3af;  /* gray-400 */
