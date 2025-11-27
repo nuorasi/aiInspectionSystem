@@ -59,7 +59,7 @@
 
     <style>
         #learn-dropzone {
-            width: 90vw;
+            width: 75vw;
             max-width: 100%;
             margin: 0 auto;
             border: 2px dashed #9ca3af;
@@ -86,4 +86,48 @@
             maxFilesize: 5,
             acceptedFiles: "image/*",
             headers: {
-                "X-CSRF-TOKEN": "{{ csrf
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
+            init: function () {
+                const spinner = document.getElementById('upload-spinner');
+                const statusEl = document.getElementById('upload-status');
+                const imageWrapper = document.getElementById('uploaded-image-wrapper');
+                const imageEl = document.getElementById('uploaded-image');
+
+                this.on("sending", function () {
+                    spinner.classList.remove('hidden');
+                    statusEl.textContent = 'Uploading file...';
+                });
+
+                this.on("success", function (file, response) {
+                    // Remove preview thumbnail
+                    this.removeFile(file);
+
+                    spinner.classList.add('hidden');
+
+                    const bytes = file.size;
+                    let sizeText;
+                    if (bytes > 1024 * 1024) {
+                        sizeText = (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+                    } else {
+                        sizeText = (bytes / 1024).toFixed(2) + ' KB';
+                    }
+
+                    const fileDate = new Date(file.lastModified || Date.now());
+                    const dateText = fileDate.toLocaleString();
+
+                    statusEl.textContent =
+                        'File was loaded successfully. Size: ' + sizeText + '. Date: ' + dateText + '.';
+
+                    imageEl.src = response.url;
+                    imageWrapper.classList.remove('hidden');
+                });
+
+                this.on("error", function (file, errorMessage) {
+                    spinner.classList.add('hidden');
+                    statusEl.textContent = 'Error uploading file: ' + errorMessage;
+                });
+            }
+        });
+    </script>
+</x-app-layout>
