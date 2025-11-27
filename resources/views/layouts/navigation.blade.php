@@ -4,7 +4,7 @@
         <div class="flex justify-between h-16">
             <div class="flex">
                 <!-- Logo -->
-                <div class="shrink-0 flex items-center">
+                <div class="shrink-0 flex items-center text-white">
                     <a href="{{ route('dashboard') }}">
                         <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
                     </a>
@@ -12,20 +12,15 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('analyzeImagePage.indexAi')" :active="request()->routeIs('analyzeImagePage.indexAi')">
+                    <x-nav-link :href="route('analyzeImagePage.indexAi')" :active="request()->routeIs('analyzeImagePage.indexAi')" class="text-white">
                         Analyze an Image
                     </x-nav-link>
-                    {{--                    <x-nav-link :href="route('studentsPage.data')" :active="request()->routeIs('studentsPage.data')">--}}
-                    {{--                        Students Data--}}
-                    {{--                    </x-nav-link>--}}
 
-                    <x-nav-link :href="route('learnImagePage.indexTi')" :active="request()->routeIs('learnImagePage.indexTi')">
+                    <x-nav-link :href="route('learnImagePage.indexTi')" :active="request()->routeIs('learnImagePage.indexTi')" class="text-white">
                         Learn an Image
                     </x-nav-link>
-                    <x-nav-link :href="route('reviewYourImagesPage.indexRyi')" :active="request()->routeIs('reviewYourImagesPage.indexRyi')">
+
+                    <x-nav-link :href="route('reviewYourImagesPage.indexRyi')" :active="request()->routeIs('reviewYourImagesPage.indexRyi')" class="text-white">
                         Review Your Images
                     </x-nav-link>
                 </div>
