@@ -27,8 +27,8 @@
                     </x-nav-link>
 
                     <x-nav-link
-                        :href="route('learnImagePage.indexTi')"
-                        :active="request()->routeIs('learnImagePage.indexTi')"
+                        :href="route('learnImagePage.indexImg')"
+                        :active="request()->routeIs('learnImagePage.indexImg')"
                         class="text-white hover:text-orange-300"
                     >
                         Learn an Image
