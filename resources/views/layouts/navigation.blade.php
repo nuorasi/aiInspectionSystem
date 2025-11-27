@@ -4,11 +4,11 @@
         <div class="flex justify-between h-16">
             <div class="flex">
                 <!-- Logo -->
-{{--                <div class="shrink-0 flex items-center text-white">--}}
-{{--                    <a href="{{ route('dashboard') }}">--}}
-{{--                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />--}}
-{{--                    </a>--}}
-{{--                </div>--}}
+                <div class="shrink-0 flex items-center text-white">
+                    <a href="{{ route('dashboard') }}">
+                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+                    </a>
+                </div>
 
                 <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-white">
                     {{ __('Dashboard') }}
