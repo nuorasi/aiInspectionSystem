@@ -13,6 +13,25 @@
             font-family: Arial, sans-serif;
             padding: 20px;
         }
+
+        /* Custom Dropzone Style */
+        .custom-dropzone {
+            width: 75vw; /* 75 percent of screen width */
+            margin: 0 auto;
+            border: 2px dashed #999;
+            border-radius: 15px; /* Rounded corners */
+            background: #f9f9f9;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .custom-dropzone .dz-message {
+            font-size: 18px;
+            color: #444;
+            opacity: 0.9;
+        }
+
         #uploaded-images img {
             max-width: 200px;
             margin: 10px;
@@ -27,10 +46,14 @@
 <form
     action="{{ route('photos.upload') }}"
     method="post"
-    class="dropzone"
+    class="dropzone custom-dropzone"
     id="my-dropzone"
 >
     @csrf
+
+    <div class="dz-message">
+        Please drop photos here that you would like the AI engine to learn.
+    </div>
 </form>
 
 <div id="uploaded-images" class="mt-4"></div>
@@ -39,7 +62,6 @@
 <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
 
 <script>
-    // Disable auto discover
     Dropzone.autoDiscover = false;
 
     const dz = new Dropzone("#my-dropzone", {
