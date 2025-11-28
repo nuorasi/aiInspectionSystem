@@ -77,6 +77,8 @@
                                 <th class="px-3 py-2 border">Size (bytes)</th>
                                 <th class="px-3 py-2 border">Width</th>
                                 <th class="px-3 py-2 border">Height</th>
+
+                                {{-- EXIF header with toggle button --}}
                                 <th class="px-3 py-2 border">
                                     <div class="flex items-center gap-2">
                                         <span>EXIF</span>
@@ -96,10 +98,11 @@
                                                       d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                 <circle cx="12" cy="12" r="3" />
                                             </svg>
-                                            <span class="toggle-label">Hide</span>
+                                            <span class="toggle-label">Show</span>
                                         </button>
                                     </div>
                                 </th>
+
                                 <th class="px-3 py-2 border">Image</th>
                                 <th class="px-3 py-2 border">Product</th>
                                 <th class="px-3 py-2 border">Size</th>
@@ -123,17 +126,20 @@
                                     <td class="px-3 py-2 border">{{ $photo->width }}</td>
                                     <td class="px-3 py-2 border">{{ $photo->height }}</td>
 
+                                    {{-- EXIF column - starts hidden --}}
                                     <td class="px-3 py-2 border max-w-[300px] overflow-x-auto exif-col hidden">
-    <pre class="whitespace-pre-wrap text-xs">
+                        <pre class="whitespace-pre-wrap text-xs">
 {{ json_encode($photo->exif, JSON_PRETTY_PRINT) }}
-    </pre>
+                        </pre>
                                     </td>
 
-
+                                    {{-- Thumbnail column - always visible --}}
                                     <td class="px-3 py-2 border">
-                                        <img src="{{ Storage::disk($photo->disk)->url($photo->path) }}"
-                                             alt="Image"
-                                             class="w-20 h-auto rounded">
+                                        <img
+                                            src="{{ Storage::disk($photo->disk)->url($photo->path) }}"
+                                            alt="Image"
+                                            class="w-20 h-auto rounded"
+                                        >
                                     </td>
 
                                     <td class="px-3 py-2 border">{{ $photo->product }}</td>
@@ -141,7 +147,6 @@
                                     <td class="px-3 py-2 border">{{ $photo->type }}</td>
                                     <td class="px-3 py-2 border">{{ $photo->installationStatus }}</td>
                                     <td class="px-3 py-2 border">{{ $photo->confidence }}</td>
-
                                     <td class="px-3 py-2 border">{{ $photo->created_at }}</td>
                                     <td class="px-3 py-2 border">{{ $photo->updated_at }}</td>
                                 </tr>
@@ -149,6 +154,9 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+
+            </div>
                 </div>
 
             </div>
@@ -310,7 +318,12 @@
             if (!toggleExifBtn) return;
 
             const exifCells = document.querySelectorAll('.exif-col');
-            let exifVisible = false;
+            let exifVisible = false; // start hidden
+
+            const initialLabel = toggleExifBtn.querySelector('.toggle-label');
+            if (initialLabel) {
+                initialLabel.textContent = 'Show';
+            }
 
             toggleExifBtn.addEventListener('click', function () {
                 exifVisible = !exifVisible;
@@ -330,5 +343,6 @@
             });
         });
     </script>
+
 
 </x-app-layout>
