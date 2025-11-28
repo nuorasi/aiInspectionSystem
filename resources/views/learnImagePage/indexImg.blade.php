@@ -78,30 +78,7 @@
                                 <th class="px-3 py-2 border">Width</th>
                                 <th class="px-3 py-2 border">Height</th>
 
-                                {{-- EXIF header with toggle button --}}
-                                <th class="px-3 py-2 border">
-                                    <div class="flex items-center gap-2">
-                                        <span>EXIF</span>
-                                        <button
-                                            type="button"
-                                            id="toggle-exif-btn"
-                                            class="inline-flex items-center px-2 py-1 text-xs font-semibold border border-gray-500 rounded-md bg-gray-800 text-white hover:bg-gray-700"
-                                        >
-                                            <svg
-                                                class="w-4 h-4 mr-1"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                                stroke="currentColor"
-                                            >
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                <circle cx="12" cy="12" r="3" />
-                                            </svg>
-                                            <span class="toggle-label">Show</span>
-                                        </button>
-                                    </div>
-                                </th>
+                                <th class="px-3 py-2 border">EXIF</th>
 
                                 <th class="px-3 py-2 border">Image</th>
                                 <th class="px-3 py-2 border">Product</th>
@@ -128,10 +105,30 @@
 
                                     {{-- EXIF column - starts hidden --}}
                                     <td class="px-3 py-2 border max-w-[300px] overflow-x-auto">
-    <pre class="whitespace-pre-wrap text-xs exif-content hidden">
+                                        <button
+                                            type="button"
+                                            class="mb-2 inline-flex items-center px-2 py-1 text-xs font-semibold border border-gray-500 rounded-md bg-gray-800 text-white hover:bg-gray-700 exif-toggle-btn"
+                                        >
+                                            <svg
+                                                class="w-4 h-4 mr-1"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                <circle cx="12" cy="12" r="3" />
+                                            </svg>
+                                            <span class="exif-toggle-label">Show</span>
+                                        </button>
+
+                                        <pre class="whitespace-pre-wrap text-xs exif-content hidden">
 {{ json_encode($photo->exif, JSON_PRETTY_PRINT) }}
     </pre>
                                     </td>
+
+
 
                                     {{-- Thumbnail column - always visible --}}
                                     <td class="px-3 py-2 border">
@@ -531,35 +528,32 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const toggleExifBtn = document.getElementById('toggle-exif-btn');
-            if (!toggleExifBtn) return;
+            const buttons = document.querySelectorAll('.exif-toggle-btn');
 
-            const exifBlocks = document.querySelectorAll('.exif-content');
-            let exifVisible = false; // start hidden
+            buttons.forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    const row = btn.closest('td');
+                    if (!row) return;
 
-            const initialLabel = toggleExifBtn.querySelector('.toggle-label');
-            if (initialLabel) {
-                initialLabel.textContent = 'Show';
-            }
+                    const exifBlock = row.querySelector('.exif-content');
+                    const label = btn.querySelector('.exif-toggle-label');
 
-            toggleExifBtn.addEventListener('click', function () {
-                exifVisible = !exifVisible;
+                    if (!exifBlock) return;
 
-                exifBlocks.forEach(function (block) {
-                    if (exifVisible) {
-                        block.classList.remove('hidden');
+                    const isHidden = exifBlock.classList.contains('hidden');
+
+                    if (isHidden) {
+                        exifBlock.classList.remove('hidden');
+                        if (label) label.textContent = 'Hide';
                     } else {
-                        block.classList.add('hidden');
+                        exifBlock.classList.add('hidden');
+                        if (label) label.textContent = 'Show';
                     }
                 });
-
-                const label = toggleExifBtn.querySelector('.toggle-label');
-                if (label) {
-                    label.textContent = exifVisible ? 'Hide' : 'Show';
-                }
             });
         });
     </script>
+
 
 
 
