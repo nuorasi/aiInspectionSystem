@@ -127,10 +127,10 @@
                                     <td class="px-3 py-2 border">{{ $photo->height }}</td>
 
                                     {{-- EXIF column - starts hidden --}}
-                                    <td class="px-3 py-2 border max-w-[300px] overflow-x-auto exif-col hidden">
-                        <pre class="whitespace-pre-wrap text-xs">
+                                    <td class="px-3 py-2 border max-w-[300px] overflow-x-auto">
+    <pre class="whitespace-pre-wrap text-xs exif-content hidden">
 {{ json_encode($photo->exif, JSON_PRETTY_PRINT) }}
-                        </pre>
+    </pre>
                                     </td>
 
                                     {{-- Thumbnail column - always visible --}}
@@ -317,7 +317,7 @@
             const toggleExifBtn = document.getElementById('toggle-exif-btn');
             if (!toggleExifBtn) return;
 
-            const exifCells = document.querySelectorAll('.exif-col');
+            const exifBlocks = document.querySelectorAll('.exif-content');
             let exifVisible = false; // start hidden
 
             const initialLabel = toggleExifBtn.querySelector('.toggle-label');
@@ -328,11 +328,11 @@
             toggleExifBtn.addEventListener('click', function () {
                 exifVisible = !exifVisible;
 
-                exifCells.forEach(function (cell) {
+                exifBlocks.forEach(function (block) {
                     if (exifVisible) {
-                        cell.classList.remove('hidden');
+                        block.classList.remove('hidden');
                     } else {
-                        cell.classList.add('hidden');
+                        block.classList.add('hidden');
                     }
                 });
 
@@ -343,6 +343,7 @@
             });
         });
     </script>
+
 
 
 </x-app-layout>
