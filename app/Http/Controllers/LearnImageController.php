@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 class LearnImageController extends Controller
 {
     //
-    public function indexImg(Request $request): string
+    public function indexImg(Request $request)
     {
         //   Log::info('IN oAuthTest ident 112722d Input variable userId= '.$request->userId);
         Log::info('IN indexAi ident 112722d ' );
