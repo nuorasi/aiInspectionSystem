@@ -63,7 +63,7 @@ class PhotoUploadController extends Controller
                 }
             } catch (\Throwable $e) {
                 Log::warning('EXIF read failed', [
-                    'path' => $absolutePath,
+                    'path'  => $absolutePath,
                     'error' => $e->getMessage(),
                 ]);
             }
@@ -71,6 +71,7 @@ class PhotoUploadController extends Controller
 
         // Save a record in the database
         $photo = Photo::create([
+            'image'      => $path,                        // <- important line
             'disk'       => $disk,
             'path'       => $path,
             'file_name'  => $file->getClientOriginalName(),
@@ -78,7 +79,7 @@ class PhotoUploadController extends Controller
             'size_bytes' => $sizeBytes,
             'width'      => $width,
             'height'     => $height,
-            'exif'       => $exifData,
+            'exif'       => $exifData,                    // if column is TEXT, use json_encode($exifData)
         ]);
 
         return response()->json([
@@ -87,4 +88,5 @@ class PhotoUploadController extends Controller
             'url'     => $photo->url,
         ]);
     }
+
 }
