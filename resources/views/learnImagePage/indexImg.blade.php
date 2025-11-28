@@ -161,8 +161,110 @@
 
             </div>
             </div>
+    {{-- Manual Metadata Modal --}}
+    <div
+        id="meta-modal"
+        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden"
+    >
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-lg p-6">
+            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
+                Enter Image Details
+            </h3>
+
+            <form id="meta-form" class="space-y-4">
+                <input type="hidden" id="meta-photo-id" name="photo_id">
+
+                {{-- Product --}}
+                <div>
+                    <label for="meta-product" class="block text-sm font-medium mb-1">
+                        Product
+                    </label>
+                    <select
+                        id="meta-product"
+                        name="product"
+                        class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900"
+                    >
+                        <option value="">Select product</option>
+                        <option value="Rigid Coupling">Rigid Coupling</option>
+                        <option value="Flexible Coupling">Flexible Coupling</option>
+                        <option value="Grooved Fitting">Grooved Fitting</option>
+                    </select>
+                </div>
+
+                {{-- Size --}}
+                <div>
+                    <label for="meta-size" class="block text-sm font-medium mb-1">
+                        Size
+                    </label>
+                    <select
+                        id="meta-size"
+                        name="size"
+                        class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900"
+                    >
+                        <option value="">Select size</option>
+                        <option value="2 inch">2 inch</option>
+                        <option value="3 inch">3 inch</option>
+                        <option value="4 inch">4 inch</option>
+                        <option value="6 inch">6 inch</option>
+                    </select>
+                </div>
+
+                {{-- Installation Status --}}
+                <div>
+                    <label for="meta-installationStatus" class="block text-sm font-medium mb-1">
+                        Installation Status
+                    </label>
+                    <select
+                        id="meta-installationStatus"
+                        name="installationStatus"
+                        class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900"
+                    >
+                        <option value="">Select status</option>
+                        <option value="Complete">Complete</option>
+                        <option value="Incomplete">Incomplete</option>
+                        <option value="Uncertain">Uncertain</option>
+                    </select>
+                </div>
+
+                {{-- Confidence --}}
+                <div>
+                    <label for="meta-confidence" class="block text-sm font-medium mb-1">
+                        Confidence (0.0 to 100.0)
+                    </label>
+                    <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        max="100"
+                        id="meta-confidence"
+                        name="confidence"
+                        class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900"
+                    >
+                </div>
+
+                <div id="meta-status" class="text-sm text-red-500"></div>
+
+                <div class="flex justify-end gap-2 pt-4">
+                    <button
+                        type="button"
+                        id="meta-cancel"
+                        class="px-4 py-2 border rounded-md text-sm text-gray-700 dark:text-gray-200"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        class="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm font-semibold hover:bg-indigo-700"
+                    >
+                        Save
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
+
+
+
 
     {{-- Dropzone CSS --}}
     <link
@@ -219,12 +321,13 @@
                 });
 
                 this.on("success", function (file, response) {
+                    console.log('Dropzone success response:', response);
+
                     // Remove dropzone thumbnail
                     this.removeFile(file);
 
                     spinner.classList.add('hidden');
 
-                    // Compute file size for display
                     const bytes = file.size;
                     let sizeText;
                     if (bytes > 1024 * 1024) {
@@ -254,7 +357,27 @@
                     }, 500);
 
                     uploadAnotherBtn.classList.remove('hidden');
+
+                    // Handle case where response might be a string
+                    let photoId = null;
+                    if (typeof response === 'string') {
+                        try {
+                            const parsed = JSON.parse(response);
+                            photoId = parsed.photo?.id ?? null;
+                        } catch (e) {
+                            console.error('Failed to parse response JSON', e);
+                        }
+                    } else if (response && response.photo && response.photo.id) {
+                        photoId = response.photo.id;
+                    }
+
+                    console.log('Resolved photoId for modal:', photoId);
+
+                    if (photoId) {
+                        openMetaModal(photoId);
+                    }
                 });
+
 
                 // IMPORTANT: new error handler
                 this.on("error", function (file, errorMessage, xhr) {
@@ -312,6 +435,100 @@
             }
         });
     </script>
+
+    <script>
+        function openMetaModal(photoId) {
+            const modal = document.getElementById('meta-modal');
+            const idInput = document.getElementById('meta-photo-id');
+            const statusEl = document.getElementById('meta-status');
+
+            if (!modal || !idInput) {
+                console.error('Meta modal elements not found');
+                return;
+            }
+
+            idInput.value = photoId;
+            statusEl.textContent = '';
+
+            // Clear previous values
+            const productEl = document.getElementById('meta-product');
+            const sizeEl = document.getElementById('meta-size');
+            const statusSelect = document.getElementById('meta-installationStatus');
+            const confidenceEl = document.getElementById('meta-confidence');
+
+            if (productEl) productEl.value = '';
+            if (sizeEl) sizeEl.value = '';
+            if (statusSelect) statusSelect.value = '';
+            if (confidenceEl) confidenceEl.value = '';
+
+            modal.classList.remove('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const modal = document.getElementById('meta-modal');
+            const form = document.getElementById('meta-form');
+            const cancelBtn = document.getElementById('meta-cancel');
+            const statusEl = document.getElementById('meta-status');
+
+            if (!modal || !form) {
+                console.warn('Meta modal or form not found on page');
+                return;
+            }
+
+            cancelBtn.addEventListener('click', function () {
+                modal.classList.add('hidden');
+            });
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                statusEl.textContent = '';
+
+                const photoId = document.getElementById('meta-photo-id').value;
+                const product = document.getElementById('meta-product').value;
+                const size = document.getElementById('meta-size').value;
+                const installationStatus = document.getElementById('meta-installationStatus').value;
+                const confidence = document.getElementById('meta-confidence').value;
+
+                const url = "{{ url('/photos') }}/" + photoId + "/manual-meta";
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        product: product,
+                        size: size,
+                        installationStatus: installationStatus,
+                        confidence: confidence
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Meta save response:', data);
+
+                        if (!data.success) {
+                            statusEl.textContent = 'Error saving metadata.';
+                            return;
+                        }
+
+                        modal.classList.add('hidden');
+
+                        // Easiest way to see updated table
+                        window.location.reload();
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        statusEl.textContent = 'Unexpected error saving metadata.';
+                    });
+            });
+        });
+    </script>
+
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const toggleExifBtn = document.getElementById('toggle-exif-btn');
