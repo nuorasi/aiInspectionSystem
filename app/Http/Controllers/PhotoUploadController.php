@@ -47,27 +47,27 @@ class PhotoUploadController extends Controller
             }
         }
 
-        // EXIF metadata (mostly for jpg/jpeg, tiff)
-        $exifData = null;
-        $extension = strtolower($file->getClientOriginalExtension());
-
-        if (in_array($extension, ['jpg', 'jpeg', 'tif', 'tiff'], true)
-            && function_exists('exif_read_data')) {
-
-            try {
-                // Use @ to suppress warnings for files without EXIF
-                $rawExif = @exif_read_data($absolutePath, null, true);
-
-                if ($rawExif && is_array($rawExif)) {
-                    $exifData = $rawExif;
-                }
-            } catch (\Throwable $e) {
-                Log::warning('EXIF read failed', [
-                    'path' => $absolutePath,
-                    'error' => $e->getMessage(),
-                ]);
-            }
-        }
+//        // EXIF metadata (mostly for jpg/jpeg, tiff)
+//        $exifData = null;
+//        $extension = strtolower($file->getClientOriginalExtension());
+//
+//        if (in_array($extension, ['jpg', 'jpeg', 'tif', 'tiff'], true)
+//            && function_exists('exif_read_data')) {
+//
+//            try {
+//                // Use @ to suppress warnings for files without EXIF
+//                $rawExif = @exif_read_data($absolutePath, null, true);
+//
+//                if ($rawExif && is_array($rawExif)) {
+//                    $exifData = $rawExif;
+//                }
+//            } catch (\Throwable $e) {
+//                Log::warning('EXIF read failed', [
+//                    'path' => $absolutePath,
+//                    'error' => $e->getMessage(),
+//                ]);
+//            }
+//        }
 
         // Save a record in the database
         $photo = Photo::create([
