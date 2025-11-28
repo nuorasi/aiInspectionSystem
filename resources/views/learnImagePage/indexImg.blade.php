@@ -61,7 +61,74 @@
                     >
                         Upload another file
                     </button>
+                {{-- Photos Table --}}
+                <div class="mt-10">
+                    <h3 class="text-lg font-semibold mb-4">Uploaded Photos</h3>
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm text-left border border-gray-600">
+                            <thead class="bg-gray-700 text-white">
+                            <tr>
+                                <th class="px-3 py-2 border">ID</th>
+                                <th class="px-3 py-2 border">Disk</th>
+                                <th class="px-3 py-2 border">Path</th>
+                                <th class="px-3 py-2 border">File Name</th>
+                                <th class="px-3 py-2 border">Mime</th>
+                                <th class="px-3 py-2 border">Size (bytes)</th>
+                                <th class="px-3 py-2 border">Width</th>
+                                <th class="px-3 py-2 border">Height</th>
+                                <th class="px-3 py-2 border">EXIF</th>
+                                <th class="px-3 py-2 border">Image</th>
+                                <th class="px-3 py-2 border">Product</th>
+                                <th class="px-3 py-2 border">Size</th>
+                                <th class="px-3 py-2 border">Type</th>
+                                <th class="px-3 py-2 border">Installation Status</th>
+                                <th class="px-3 py-2 border">Confidence</th>
+                                <th class="px-3 py-2 border">Created</th>
+                                <th class="px-3 py-2 border">Updated</th>
+                            </tr>
+                            </thead>
+
+                            <tbody class="text-gray-900 dark:text-gray-200">
+                            @foreach ($photos as $photo)
+                                <tr class="border-t border-gray-600">
+                                    <td class="px-3 py-2 border">{{ $photo->id }}</td>
+                                    <td class="px-3 py-2 border">{{ $photo->disk }}</td>
+                                    <td class="px-3 py-2 border">{{ $photo->path }}</td>
+                                    <td class="px-3 py-2 border">{{ $photo->file_name }}</td>
+                                    <td class="px-3 py-2 border">{{ $photo->mime_type }}</td>
+                                    <td class="px-3 py-2 border">{{ $photo->size_bytes }}</td>
+                                    <td class="px-3 py-2 border">{{ $photo->width }}</td>
+                                    <td class="px-3 py-2 border">{{ $photo->height }}</td>
+
+                                    <td class="px-3 py-2 border max-w-[300px] overflow-x-auto">
+                            <pre class="whitespace-pre-wrap text-xs">
+{{ json_encode($photo->exif, JSON_PRETTY_PRINT) }}
+                            </pre>
+                                    </td>
+
+                                    <td class="px-3 py-2 border">
+                                        <img src="{{ Storage::disk($photo->disk)->url($photo->path) }}"
+                                             alt="Image"
+                                             class="w-20 h-auto rounded">
+                                    </td>
+
+                                    <td class="px-3 py-2 border">{{ $photo->product }}</td>
+                                    <td class="px-3 py-2 border">{{ $photo->size }}</td>
+                                    <td class="px-3 py-2 border">{{ $photo->type }}</td>
+                                    <td class="px-3 py-2 border">{{ $photo->installationStatus }}</td>
+                                    <td class="px-3 py-2 border">{{ $photo->confidence }}</td>
+
+                                    <td class="px-3 py-2 border">{{ $photo->created_at }}</td>
+                                    <td class="px-3 py-2 border">{{ $photo->updated_at }}</td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+
+            </div>
             </div>
         </div>
     </div>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Photo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -14,7 +15,9 @@ class LearnImageController extends Controller
         Log::info('IN indexAi ident 112722d ' );
 
         // return $this->apiResponse(200, 'Success', ['oAuthTestResponse' => $oneRosterBearerToken[0]->tokenValue]);
-        return view('learnImagePage.indexImg');
+        $photos = Photo::orderBy('id', 'desc')->get(); // or paginate()
+
+        return view('indexImg', compact('photos'));
 
     }
 }
