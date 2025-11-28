@@ -77,7 +77,29 @@
                                 <th class="px-3 py-2 border">Size (bytes)</th>
                                 <th class="px-3 py-2 border">Width</th>
                                 <th class="px-3 py-2 border">Height</th>
-                                <th class="px-3 py-2 border">EXIF</th>
+                                <th class="px-3 py-2 border">
+                                    <div class="flex items-center gap-2">
+                                        <span>EXIF</span>
+                                        <button
+                                            type="button"
+                                            id="toggle-exif-btn"
+                                            class="inline-flex items-center px-2 py-1 text-xs font-semibold border border-gray-500 rounded-md bg-gray-800 text-white hover:bg-gray-700"
+                                        >
+                                            <svg
+                                                class="w-4 h-4 mr-1"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                <circle cx="12" cy="12" r="3" />
+                                            </svg>
+                                            <span class="toggle-label">Hide</span>
+                                        </button>
+                                    </div>
+                                </th>
                                 <th class="px-3 py-2 border">Image</th>
                                 <th class="px-3 py-2 border">Product</th>
                                 <th class="px-3 py-2 border">Size</th>
@@ -101,11 +123,12 @@
                                     <td class="px-3 py-2 border">{{ $photo->width }}</td>
                                     <td class="px-3 py-2 border">{{ $photo->height }}</td>
 
-                                    <td class="px-3 py-2 border max-w-[300px] overflow-x-auto">
-                            <pre class="whitespace-pre-wrap text-xs">
+                                    <td class="px-3 py-2 border max-w-[300px] overflow-x-auto exif-col">
+    <pre class="whitespace-pre-wrap text-xs">
 {{ json_encode($photo->exif, JSON_PRETTY_PRINT) }}
-                            </pre>
+    </pre>
                                     </td>
+
 
                                     <td class="px-3 py-2 border">
                                         <img src="{{ Storage::disk($photo->disk)->url($photo->path) }}"
@@ -279,6 +302,32 @@
                     uploadAnotherBtn.classList.add('hidden');
                 });
             }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleExifBtn = document.getElementById('toggle-exif-btn');
+            if (!toggleExifBtn) return;
+
+            const exifCells = document.querySelectorAll('.exif-col');
+            let exifVisible = true;
+
+            toggleExifBtn.addEventListener('click', function () {
+                exifVisible = !exifVisible;
+
+                exifCells.forEach(function (cell) {
+                    if (exifVisible) {
+                        cell.classList.remove('hidden');
+                    } else {
+                        cell.classList.add('hidden');
+                    }
+                });
+
+                const label = toggleExifBtn.querySelector('.toggle-label');
+                if (label) {
+                    label.textContent = exifVisible ? 'Hide' : 'Show';
+                }
+            });
         });
     </script>
 
