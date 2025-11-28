@@ -37,5 +37,7 @@ Route::get('/photos/upload', function () {
 })->name('photos.upload.form');
 
 
+Route::post('/photos/{photo}/manual-meta', [PhotoUploadController::class, 'updateManualMeta'])
+    ->name('photos.updateManualMeta');
 
 require __DIR__.'/auth.php';

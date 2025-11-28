@@ -112,5 +112,20 @@ class PhotoUploadController extends Controller
 
         return $data;
     }
+    public function updateManualMeta(Request $request, Photo $photo)
+    {
+        $validated = $request->validate([
+            'product'            => 'nullable|string|max:255',
+            'size'               => 'nullable|string|max:255',
+            'installationStatus' => 'nullable|string|max:255',
+            'confidence'         => 'nullable|numeric|min:0|max:100',
+        ]);
 
+        $photo->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'photo'   => $photo,
+        ]);
+    }
 }

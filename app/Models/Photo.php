@@ -20,8 +20,9 @@ class Photo extends Model
         'size',
         'type',
         'installationStatus',
-        'confidence'
-
+        'confidence',
+        'tensorStatus',
+        'analysisStatus',
     ];
     protected $casts = [
         'exif' => 'array',
