@@ -55,11 +55,11 @@ class PhotoUploadController extends Controller
             && function_exists('exif_read_data')) {
 
             try {
-                // Use @ to suppress warnings for files without EXIF
                 $rawExif = @exif_read_data($absolutePath, null, true);
 
                 if ($rawExif && is_array($rawExif)) {
-                    $exifData = $rawExif;
+                    // sanitize EXIF to valid UTF-8 so JSON encoding does not fail
+                    $exifData = $this->sanitizeExif($rawExif);
                 }
             } catch (\Throwable $e) {
                 Log::warning('EXIF read failed', [
@@ -87,6 +87,30 @@ class PhotoUploadController extends Controller
             'photo'   => $photo,
             'url'     => $photo->url,
         ]);
+    }
+
+    private function sanitizeExif($data)
+    {
+        if (is_array($data)) {
+            $clean = [];
+
+            foreach ($data as $key => $value) {
+                $clean[$key] = $this->sanitizeExif($value);
+            }
+
+            return $clean;
+        }
+
+        if (is_string($data)) {
+            // Try to re-encode to valid UTF-8 and drop bad bytes
+            $converted = @mb_convert_encoding($data, 'UTF-8', 'UTF-8, ISO-8859-1, ASCII');
+            if ($converted === false) {
+                $converted = @iconv('UTF-8', 'UTF-8//IGNORE', $data);
+            }
+            return $converted ?: '';
+        }
+
+        return $data;
     }
 
 }

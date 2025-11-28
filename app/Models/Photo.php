@@ -23,10 +23,11 @@ class Photo extends Model
         'confidence',
         'score'
     ];
-
     protected $casts = [
         'exif' => 'array',
+        'confidence' => 'decimal:2',
     ];
+
 
     // Convenience accessor
     public function getUrlAttribute(): string
