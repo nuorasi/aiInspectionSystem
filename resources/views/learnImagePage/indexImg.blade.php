@@ -123,7 +123,7 @@
                                     <td class="px-3 py-2 border">{{ $photo->width }}</td>
                                     <td class="px-3 py-2 border">{{ $photo->height }}</td>
 
-                                    <td class="px-3 py-2 border max-w-[300px] overflow-x-auto exif-col">
+                                    <td class="px-3 py-2 border max-w-[300px] overflow-x-auto exif-col hidden">
     <pre class="whitespace-pre-wrap text-xs">
 {{ json_encode($photo->exif, JSON_PRETTY_PRINT) }}
     </pre>
@@ -310,7 +310,7 @@
             if (!toggleExifBtn) return;
 
             const exifCells = document.querySelectorAll('.exif-col');
-            let exifVisible = true;
+            let exifVisible = false;
 
             toggleExifBtn.addEventListener('click', function () {
                 exifVisible = !exifVisible;
