@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Photo extends Model
 {
@@ -34,6 +35,30 @@ class Photo extends Model
     public function getUrlAttribute(): string
     {
         return asset('storage/' . $this->path);
+    }
+
+
+    protected $appends = ['thumb_url', 'scaled_url', 'original_url'];
+
+    public function getThumbUrlAttribute(): ?string
+    {
+        return $this->path_thumb
+            ? Storage::disk($this->disk)->url($this->path_thumb)
+            : null;
+    }
+
+    public function getScaledUrlAttribute(): ?string
+    {
+        return $this->path_scaled
+            ? Storage::disk($this->disk)->url($this->path_scaled)
+            : null;
+    }
+
+    public function getOriginalUrlAttribute(): ?string
+    {
+        return $this->path_original
+            ? Storage::disk($this->disk)->url($this->path_original)
+            : null;
     }
 }
 
