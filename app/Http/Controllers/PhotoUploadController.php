@@ -175,7 +175,8 @@ class PhotoUploadController extends Controller
         $outExt = $extension;
 
         // Scaled
-        $scaled = $img->clone()->scaleDown(width: 1000); // keeps aspect ratio, no upsize
+      //  $scaled = $img->clone()->scaleDown(width: 1000); // keeps aspect ratio, no upsize
+        $scaled = (clone $img)->scaleDown(width: 1000);
         $scaledPath = "{$scaledDir}/{$filename}";
         Storage::disk($disk)->put(
             $scaledPath,
@@ -183,7 +184,8 @@ class PhotoUploadController extends Controller
         );
 
         // Thumb (square crop)
-        $thumb = $img->clone()->cover(300, 300); // center-crop to exactly 300x300
+    //    $thumb = $img->clone()->cover(300, 300); // center-crop to exactly 300x300
+        $thumb  = (clone $img)->cover(300, 300);
         $thumbPath = "{$thumbDir}/{$filename}";
         Storage::disk($disk)->put(
             $thumbPath,

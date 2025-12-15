@@ -7,7 +7,9 @@
     @vite('resources/css/app.css')
 </head>
 <body class="bg-black text-white min-h-screen flex flex-col">
-
+<?php
+Log::info('IN Welcome ' );
+?>
 <!-- Top Navigation -->
 <nav class="bg-[#262626] text-white w-full shadow-sm">
     <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
