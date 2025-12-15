@@ -96,6 +96,8 @@ class PhotoUploadController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+
+        Log::info('in store ident 2342432432 ERROR DATA =>> ');
         try {
             $request->validate([
                 'file' => 'required|mimes:jpg,jpeg,png,gif,webp|max:204800', // 200 MB
@@ -120,6 +122,10 @@ class PhotoUploadController extends Controller
         $basename  = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
         $safeBase  = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $basename) ?: 'image';
         $filename  = $safeBase . '_' . now()->format('Ymd_His') . '_' . bin2hex(random_bytes(4)) . '.' . $extension;
+
+
+        Log::info('in store ident 2342432432 ERROR DATA =>> ' . $filename);
+
 
         // 1) Store original
         $originalPath = "{$originalDir}/{$filename}";
