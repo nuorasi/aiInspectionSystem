@@ -9,13 +9,95 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver; // or Imagick\Driver if you prefer
+
 class PhotoUploadController extends Controller
 {
+//    public function store(Request $request): JsonResponse
+//    {
+//        try {
+//            $request->validate([
+//                // max is in kilobytes
+//                'file' => 'required|mimes:jpg,jpeg,png,gif,webp|max:204800', // 200 MB
+//            ]);
+//        } catch (ValidationException $e) {
+//            Log::error('Upload validation failed', $e->errors());
+//            throw $e;
+//        }
+//
+//        $file = $request->file('file');
+//
+//        // Store file on the public disk
+//        $disk = 'public';
+//        $path = $file->store('uploads', $disk);
+//
+//        // Absolute path on disk
+//        $absolutePath = Storage::disk($disk)->path($path);
+//
+//        // Basic metadata
+//        $sizeBytes = @filesize($absolutePath) ?: null;
+//        $mimeType  = $file->getClientMimeType() ?? @mime_content_type($absolutePath) ?: null;
+//
+//        $width = null;
+//        $height = null;
+//
+//        if (function_exists('getimagesize')) {
+//            $imageInfo = @getimagesize($absolutePath);
+//            if ($imageInfo && is_array($imageInfo)) {
+//                $width = $imageInfo[0] ?? null;
+//                $height = $imageInfo[1] ?? null;
+//            }
+//        }
+//
+//        // EXIF metadata (mostly for jpg/jpeg, tiff)
+//        $exifData = null;
+//        $extension = strtolower($file->getClientOriginalExtension());
+//
+//        if (in_array($extension, ['jpg', 'jpeg', 'tif', 'tiff'], true)
+//            && function_exists('exif_read_data')) {
+//
+//            try {
+//                $rawExif = @exif_read_data($absolutePath, null, true);
+//
+//                if ($rawExif && is_array($rawExif)) {
+//                    // sanitize EXIF to valid UTF-8 so JSON encoding does not fail
+//                    $exifData = $this->sanitizeExif($rawExif);
+//                }
+//            } catch (\Throwable $e) {
+//                Log::warning('EXIF read failed', [
+//                    'path'  => $absolutePath,
+//                    'error' => $e->getMessage(),
+//                ]);
+//            }
+//        }
+//
+//        // Save a record in the database
+//        $photo = Photo::create([
+//            'image'      => $path,                        // <- important line
+//            'disk'       => $disk,
+//            'path'       => $path,
+//            'file_name'  => $file->getClientOriginalName(),
+//            'mime_type'  => $mimeType,
+//            'size_bytes' => $sizeBytes,
+//            'width'      => $width,
+//            'height'     => $height,
+//            'exif'       => $exifData,                    // if column is TEXT, use json_encode($exifData)
+//        ]);
+//
+//        return response()->json([
+//            'success' => true,
+//            'photo'   => $photo,
+//            'url'     => $photo->url,
+//        ]);
+//    }
+
+
+
     public function store(Request $request): JsonResponse
     {
         try {
             $request->validate([
-                // max is in kilobytes
                 'file' => 'required|mimes:jpg,jpeg,png,gif,webp|max:204800', // 200 MB
             ]);
         } catch (ValidationException $e) {
@@ -25,69 +107,116 @@ class PhotoUploadController extends Controller
 
         $file = $request->file('file');
 
-        // Store file on the public disk
         $disk = 'public';
-        $path = $file->store('uploads', $disk);
 
-        // Absolute path on disk
-        $absolutePath = Storage::disk($disk)->path($path);
+        // Base folders
+        $baseDir     = 'uploads';
+        $originalDir = "{$baseDir}/original";
+        $scaledDir   = "{$baseDir}/scaled";
+        $thumbDir    = "{$baseDir}/thumb";
 
-        // Basic metadata
-        $sizeBytes = @filesize($absolutePath) ?: null;
-        $mimeType  = $file->getClientMimeType() ?? @mime_content_type($absolutePath) ?: null;
+        // Build a safe unique filename (keep original extension)
+        $extension = strtolower($file->getClientOriginalExtension() ?: 'jpg');
+        $basename  = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $safeBase  = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $basename) ?: 'image';
+        $filename  = $safeBase . '_' . now()->format('Ymd_His') . '_' . bin2hex(random_bytes(4)) . '.' . $extension;
+
+        // 1) Store original
+        $originalPath = "{$originalDir}/{$filename}";
+        Storage::disk($disk)->putFileAs($originalDir, $file, $filename);
+
+        // Absolute path for metadata + EXIF
+        $originalAbsolutePath = Storage::disk($disk)->path($originalPath);
+
+        // Basic metadata from original
+        $sizeBytes = @filesize($originalAbsolutePath) ?: null;
+        $mimeType  = $file->getClientMimeType() ?? @mime_content_type($originalAbsolutePath) ?: null;
 
         $width = null;
         $height = null;
-
         if (function_exists('getimagesize')) {
-            $imageInfo = @getimagesize($absolutePath);
+            $imageInfo = @getimagesize($originalAbsolutePath);
             if ($imageInfo && is_array($imageInfo)) {
                 $width = $imageInfo[0] ?? null;
                 $height = $imageInfo[1] ?? null;
             }
         }
 
-        // EXIF metadata (mostly for jpg/jpeg, tiff)
+        // EXIF from original (jpg/jpeg/tiff)
         $exifData = null;
-        $extension = strtolower($file->getClientOriginalExtension());
-
-        if (in_array($extension, ['jpg', 'jpeg', 'tif', 'tiff'], true)
-            && function_exists('exif_read_data')) {
-
+        if (in_array($extension, ['jpg', 'jpeg', 'tif', 'tiff'], true) && function_exists('exif_read_data')) {
             try {
-                $rawExif = @exif_read_data($absolutePath, null, true);
-
+                $rawExif = @exif_read_data($originalAbsolutePath, null, true);
                 if ($rawExif && is_array($rawExif)) {
-                    // sanitize EXIF to valid UTF-8 so JSON encoding does not fail
                     $exifData = $this->sanitizeExif($rawExif);
                 }
             } catch (\Throwable $e) {
                 Log::warning('EXIF read failed', [
-                    'path'  => $absolutePath,
+                    'path'  => $originalAbsolutePath,
                     'error' => $e->getMessage(),
                 ]);
             }
         }
 
-        // Save a record in the database
+        // 2) Create scaled (1000px wide)
+        // 3) Create thumbnail (example: 300x300 center crop)
+        $manager = new ImageManager(new Driver());
+
+        $img = $manager->read($originalAbsolutePath);
+
+        // If you want to always output jpg for scaled/thumb, set $outExt = 'jpg'
+        // Otherwise, keep original extension
+        $outExt = $extension;
+
+        // Scaled
+        $scaled = $img->clone()->scaleDown(width: 1000); // keeps aspect ratio, no upsize
+        $scaledPath = "{$scaledDir}/{$filename}";
+        Storage::disk($disk)->put(
+            $scaledPath,
+            (string) $scaled->encodeByExtension($outExt, quality: 85)
+        );
+
+        // Thumb (square crop)
+        $thumb = $img->clone()->cover(300, 300); // center-crop to exactly 300x300
+        $thumbPath = "{$thumbDir}/{$filename}";
+        Storage::disk($disk)->put(
+            $thumbPath,
+            (string) $thumb->encodeByExtension($outExt, quality: 80)
+        );
+
+        // Save record in DB
+        // Adjust columns to match your schema (add these columns if you want to store all paths)
         $photo = Photo::create([
-            'image'      => $path,                        // <- important line
-            'disk'       => $disk,
-            'path'       => $path,
-            'file_name'  => $file->getClientOriginalName(),
-            'mime_type'  => $mimeType,
-            'size_bytes' => $sizeBytes,
-            'width'      => $width,
-            'height'     => $height,
-            'exif'       => $exifData,                    // if column is TEXT, use json_encode($exifData)
+            'disk'        => $disk,
+            'file_name'   => $file->getClientOriginalName(),
+            'mime_type'   => $mimeType,
+            'size_bytes'  => $sizeBytes,
+            'width'       => $width,
+            'height'      => $height,
+            'exif'        => $exifData,
+
+            // Store paths
+            'path_original' => $originalPath,
+            'path_scaled'   => $scaledPath,
+            'path_thumb'    => $thumbPath,
+
+            // If your model currently expects `image` / `path`, pick one as the “default”
+            'image'       => $scaledPath,
+            'path'        => $scaledPath,
         ]);
 
         return response()->json([
             'success' => true,
             'photo'   => $photo,
-            'url'     => $photo->url,
+            'urls'    => [
+                'original' => Storage::disk($disk)->url($originalPath),
+                'scaled'   => Storage::disk($disk)->url($scaledPath),
+                'thumb'    => Storage::disk($disk)->url($thumbPath),
+            ],
         ]);
     }
+
+
 
     private function sanitizeExif($data)
     {
