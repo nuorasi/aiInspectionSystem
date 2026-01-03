@@ -23,7 +23,7 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/analyzeImagePage', [AnalyzeImageController::class, 'analyzeImg'])->name('analyzeImagePage.analyzeImg');
 Route::get('/learnImagePage', [LearnImageController::class, 'learnImg'])->name('learnImagePage.learnImg');
-Route::get('/reviewYourImagesPage', [ReviewYourImagesController::class, 'reviewImg.blade.php'])->name('reviewYourImagesPage.reviewImg');
+Route::get('/reviewYourImagesPage', [ReviewYourImagesController::class, 'reviewImg'])->name('reviewYourImagesPage.reviewImg');
 
 
 
