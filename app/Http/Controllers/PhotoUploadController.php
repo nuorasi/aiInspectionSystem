@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Http;
 
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver; // or Imagick\Driver if you prefer
@@ -212,6 +213,43 @@ class PhotoUploadController extends Controller
             'image'       => $scaledPath,
             'path'        => $scaledPath,
         ]);
+// Call Predict API using the scaled image (or original)
+        $predict = null;
+
+        try {
+            $apiBase = rtrim(config('services.predict.base_url'), '/');
+            $predictUrl = $apiBase . '/predict';
+
+            $scaledAbsolutePath = Storage::disk($disk)->path($scaledPath);
+
+            $predictResponse = Http::timeout(90)
+                ->attach(
+                    'file',
+                    file_get_contents($scaledAbsolutePath),
+                    basename($scaledAbsolutePath)
+                )
+                ->post($predictUrl);
+
+            if (! $predictResponse->successful()) {
+                Log::warning('Predict API failed', [
+                    'status' => $predictResponse->status(),
+                    'body' => $predictResponse->body(),
+                ]);
+            } else {
+                $predict = $predictResponse->json();
+
+                // Optional: store prediction in DB (add columns first if you want)
+                // $photo->update([
+                //     'pred_label' => $predict['label'] ?? null,
+                //     'pred_confidence' => $predict['confidence'] ?? null,
+                //     'pred_payload' => $predict, // json column recommended
+                // ]);
+            }
+        } catch (\Throwable $e) {
+            Log::error('Predict API exception', [
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         return response()->json([
             'success' => true,
@@ -221,8 +259,10 @@ class PhotoUploadController extends Controller
                 'scaled'   => Storage::disk($disk)->url($scaledPath),
                 'thumb'    => Storage::disk($disk)->url($thumbPath),
             ],
+            'predict'  => $predict, // include prediction payload
             'redirect' => route('analyzeImagePage.analyzeImg'),
         ]);
+
     }
 
 

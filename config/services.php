@@ -34,5 +34,9 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    'predict' => [
+        'base_url' => env('PREDICT_API_BASE_URL', 'http://127.0.0.1:8000'),
+    ],
+
 
 ];

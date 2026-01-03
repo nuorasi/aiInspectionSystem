@@ -5,6 +5,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewYourImagesController;
 use App\Http\Controllers\LearnImageController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PredictController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -27,6 +28,9 @@ Route::get('/reviewYourImagesPage', [ReviewYourImagesController::class, 'reviewI
 
 
 
+
+
+Route::post('/predict-upload', [PredictController::class, 'upload'])->name('predict.upload');
 
 
 Route::post('/upload-photo', [PhotoUploadController::class, 'store'])
