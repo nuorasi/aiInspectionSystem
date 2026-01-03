@@ -221,6 +221,7 @@ class PhotoUploadController extends Controller
                 'scaled'   => Storage::disk($disk)->url($scaledPath),
                 'thumb'    => Storage::disk($disk)->url($thumbPath),
             ],
+            'redirect' => route('analyzeImagePage.analyzeImg'),
         ]);
     }
 
