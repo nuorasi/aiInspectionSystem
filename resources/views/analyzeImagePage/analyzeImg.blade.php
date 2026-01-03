@@ -296,178 +296,55 @@
     <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
 
     <script>
+        // IMPORTANT: disable auto-discovery ONCE
         Dropzone.autoDiscover = false;
 
-        const dz = new Dropzone("#learn-dropzone", {
-            paramName: "file",
-            maxFilesize: 200,            // or whatever MB limit you decided
-            acceptedFiles: "image/*",
-            headers: {
-                "X-CSRF-TOKEN": "{{ csrf_token() }}"
-            },
-            init: function () {
-                const spinner = document.getElementById('upload-spinner');
-                const statusEl = document.getElementById('upload-status');
-                const imageWrapper = document.getElementById('uploaded-image-wrapper');
-                const imageEl = document.getElementById('uploaded-image');
-                const dropzoneWrapper = document.getElementById('dropzone-wrapper');
-                const uploadAnotherBtn = document.getElementById('upload-another-btn');
-                const dzMessage = document.querySelector('#learn-dropzone .dz-message');
-
-                this.on("sending", function () {
-                    dropzoneWrapper.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
-                    spinner.classList.remove('hidden');
-                    statusEl.textContent = 'Uploading file...';
-                });
-
-                this.on("success", function (file, response) {
-                    console.log('Dropzone success response:', response);
-                    if (response.predict) {
-                        console.log('predict:', response.predict);
-                    }
-
-                    // Remove dropzone thumbnail
-                    this.removeFile(file);
-
-                    spinner.classList.add('hidden');
-
-                    const bytes = file.size;
-                    let sizeText;
-                    if (bytes > 1024 * 1024) {
-                        sizeText = (bytes / (1024 * 1024)).toFixed(2) + ' MB';
-                    } else {
-                        sizeText = (bytes / 1024).toFixed(2) + ' KB';
-                    }
-
-                    const fileDate = new Date(file.lastModified || Date.now());
-                    const dateText = fileDate.toLocaleString();
-
-                    statusEl.textContent =
-                        'File was loaded successfully. Size: ' + sizeText + '. Date: ' + dateText + '.';
-
-                    // Show full width image
-                    imageEl.src = response.url;
-                    imageWrapper.classList.remove('hidden');
-
-                    if (dzMessage) {
-                        dzMessage.textContent =
-                            'File uploaded. Use "Upload another file" if you want to add more images for the AI engine to learn.';
-                    }
-
-                    dropzoneWrapper.classList.add('opacity-0', 'pointer-events-none');
-                    setTimeout(function () {
-                        dropzoneWrapper.classList.add('hidden');
-                    }, 500);
-
-                    uploadAnotherBtn.classList.remove('hidden');
-
-                    // Handle case where response might be a string
-                    let photoId = null;
-                    if (typeof response === 'string') {
-                        try {
-                            const parsed = JSON.parse(response);
-                            photoId = parsed.photo?.id ?? null;
-                        } catch (e) {
-                            console.error('Failed to parse response JSON', e);
-                        }
-                    } else if (response && response.photo && response.photo.id) {
-                        photoId = response.photo.id;
-                    }
-
-                    console.log('Resolved photoId for modal:', photoId);
-
-                    if (photoId) {
-                        openMetaModal(photoId);
-                    }
-                });
-
-
-                // IMPORTANT: new error handler
-                this.on("error", function (file, errorMessage, xhr) {
-                    spinner.classList.add('hidden');
-
-                    let msg = 'Error uploading file.';
-
-                    if (xhr && xhr.responseText) {
-                        // Try to parse JSON from Laravel
-                        try {
-                            const res = JSON.parse(xhr.responseText);
-
-                            if (res.errors && res.errors.file && res.errors.file.length) {
-                                msg = res.errors.file[0];
-                            } else if (res.message) {
-                                msg = res.message;
-                            } else {
-                                msg = 'Server error: ' + xhr.status + ' ' + xhr.statusText;
-                            }
-                        } catch (e) {
-                            // Not JSON, show a trimmed version of the raw response
-                            msg = xhr.responseText.substring(0, 200);
-                        }
-                    } else if (typeof errorMessage === 'string') {
-                        msg = errorMessage;
-                    } else if (typeof errorMessage === 'object') {
-                        // Fall back to JSON string so we never see [object Object]
-                        msg = JSON.stringify(errorMessage);
-                    }
-
-                    statusEl.textContent = 'Error uploading file: ' + msg;
-
-                    console.error('Dropzone error details:', {
-                        file,
-                        errorMessage,
-                        xhr
-                    });
-                });
-
-                uploadAnotherBtn.addEventListener('click', function () {
-                    statusEl.textContent = '';
-
-                    dropzoneWrapper.classList.remove('hidden');
-                    setTimeout(function () {
-                        dropzoneWrapper.classList.remove('opacity-0', 'pointer-events-none');
-                    }, 10);
-
-                    if (dzMessage) {
-                        dzMessage.textContent =
-                            'Please drop photos here that you would like the AI engine to learn. You can also click to browse for files.';
-                    }
-
-                    uploadAnotherBtn.classList.add('hidden');
-                });
-            }
-        });
-    </script>
-
-    <script>
-        function openMetaModal(photoId) {
-            const modal = document.getElementById('meta-modal');
-            const idInput = document.getElementById('meta-photo-id');
-            const statusEl = document.getElementById('meta-status');
-
-            if (!modal || !idInput) {
-                console.error('Meta modal elements not found');
-                return;
-            }
-
-            idInput.value = photoId;
-            statusEl.textContent = '';
-
-            // Clear previous values
-            const productEl = document.getElementById('meta-product');
-            const sizeEl = document.getElementById('meta-size');
-            const statusSelect = document.getElementById('meta-installationStatus');
-            const confidenceEl = document.getElementById('meta-confidence');
-
-            if (productEl) productEl.value = '';
-            if (sizeEl) sizeEl.value = '';
-            if (statusSelect) statusSelect.value = '';
-            if (confidenceEl) confidenceEl.value = '';
-
-            modal.classList.remove('hidden');
-        }
-
         document.addEventListener('DOMContentLoaded', function () {
+
+            /* ============================
+               GUARDED DROPZONE INIT
+            ============================ */
+
+            const dropzoneEl = document.querySelector('#photo-dropzone'); // CHANGE to your real ID
+
+            if (dropzoneEl) {
+                // Guard: do not reattach Dropzone
+                if (!dropzoneEl.dropzone) {
+
+                    const dz = new Dropzone(dropzoneEl, {
+                        url: "{{ route('photos.store') }}", // your PhotoUploadController@store route
+                        paramName: 'file',
+                        maxFiles: 1,
+                        acceptedFiles: 'image/*',
+                        timeout: 120000,
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    });
+
+                    dz.on('success', function (file, response) {
+                        console.log('Dropzone success response:', response);
+
+                        // Optional: if you want immediate redirect after upload
+                        if (response.redirect) {
+                            window.location.href = response.redirect;
+                        }
+                    });
+
+                    dz.on('error', function (file, errorMessage, xhr) {
+                        console.error('Dropzone upload error:', errorMessage);
+                        if (xhr && xhr.responseText) {
+                            console.error(xhr.responseText);
+                        }
+                    });
+                }
+            }
+
+            /* ============================
+               EXISTING META MODAL LOGIC
+               (unchanged)
+            ============================ */
+
             const modal = document.getElementById('meta-modal');
             const form = document.getElementById('meta-form');
             const cancelBtn = document.getElementById('meta-cancel');
@@ -503,10 +380,10 @@
                         'Accept': 'application/json'
                     },
                     body: JSON.stringify({
-                        product: product,
-                        size: size,
-                        installationStatus: installationStatus,
-                        confidence: confidence
+                        product,
+                        size,
+                        installationStatus,
+                        confidence
                     })
                 })
                     .then(response => response.json())
@@ -528,7 +405,10 @@
                         statusEl.textContent = 'Unexpected error saving metadata.';
                     });
             });
+
         });
+    </script>
+
     </script>
 
 
