@@ -15,7 +15,8 @@ class AnalyzeImageController extends Controller
 
        // return $this->apiResponse(200, 'Success', ['oAuthTestResponse' => $oneRosterBearerToken[0]->tokenValue]);
 
-        return view('analyzeImagePage.analyzeImg');
+
+        return view('analyzeImagePage.analyzeImg', compact('photos'));
 
     }
 }
