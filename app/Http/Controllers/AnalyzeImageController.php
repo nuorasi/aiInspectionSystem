@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Photo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -15,7 +16,7 @@ class AnalyzeImageController extends Controller
 
        // return $this->apiResponse(200, 'Success', ['oAuthTestResponse' => $oneRosterBearerToken[0]->tokenValue]);
 
-
+        $photos = Photo::orderBy('id', 'desc')->get(); // or paginate()
         return view('analyzeImagePage.analyzeImg', compact('photos'));
 
     }
