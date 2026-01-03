@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 class LearnImageController extends Controller
 {
     //
-    public function indexImg(Request $request)
+    public function learnImg(Request $request)
     {
         //   Log::info('IN oAuthTest ident 112722d Input variable userId= '.$request->userId);
         Log::info('IN indexAi ident 112722d ' );
@@ -17,6 +17,6 @@ class LearnImageController extends Controller
         // return $this->apiResponse(200, 'Success', ['oAuthTestResponse' => $oneRosterBearerToken[0]->tokenValue]);
         $photos = Photo::orderBy('id', 'desc')->get(); // or paginate()
 
-        return view('learnImagePage.indexImg', compact('photos'));
+        return view('learnImagePage.learnImg', compact('photos'));
     }
 }
