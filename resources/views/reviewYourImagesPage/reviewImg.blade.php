@@ -1,4 +1,4 @@
-{{-- resources/views/reviewYourImagesPage/indexRyi.blade.php --}}
+{{-- resources/views/reviewYourImagesPage/reviewImg.blade.php --}}
 
 <x-app-layout>
     <x-slot name="header">
