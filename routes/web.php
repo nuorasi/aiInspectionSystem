@@ -21,8 +21,8 @@ Route::middleware('auth')->group(function () {
 });
 
 
-Route::get('/analyzeImagePage', [AnalyzeImageController::class, 'indexAi'])->name('analyzeImagePage.indexAi');
-Route::get('/learnImagePage', [LearnImageController::class, 'indexImg'])->name('learnImagePage.indexImg');
+Route::get('/analyzeImagePage', [AnalyzeImageController::class, 'analyzeImg'])->name('analyzeImagePage.indexAi');
+Route::get('/learnImagePage', [LearnImageController::class, 'learnImg'])->name('learnImagePage.indexImg');
 Route::get('/reviewYourImagesPage', [ReviewYourImagesController::class, 'indexRyi'])->name('reviewYourImagesPage.indexRyi');
 
 
