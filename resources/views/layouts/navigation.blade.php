@@ -19,24 +19,24 @@
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
 
                     <x-nav-link
-                        :href="route('analyzeImagePage.indexAi')"
-                        :active="request()->routeIs('analyzeImagePage.indexAi')"
+                        :href="route('analyzeImagePage.analyzeImg')"
+                        :active="request()->routeIs('analyzeImagePage.analyzeImg')"
                         class="text-white hover:text-orange-300"
                     >
                         Analyze an Image
                     </x-nav-link>
 
                     <x-nav-link
-                        :href="route('learnImagePage.indexImg')"
-                        :active="request()->routeIs('learnImagePage.indexImg')"
+                        :href="route('learnImagePage.learnImg')"
+                        :active="request()->routeIs('learnImagePage.learnImg')"
                         class="text-white hover:text-orange-300"
                     >
                         Learn an Image
                     </x-nav-link>
 
                     <x-nav-link
-                        :href="route('reviewYourImagesPage.indexRyi')"
-                        :active="request()->routeIs('reviewYourImagesPage.indexRyi')"
+                        :href="route('reviewYourImagesPage.reviewImg')"
+                        :active="request()->routeIs('reviewYourImagesPage.reviewImg')"
                         class="text-white hover:text-orange-300"
                     >
                         Review Your Images
