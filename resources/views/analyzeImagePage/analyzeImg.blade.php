@@ -322,6 +322,9 @@
 
                 this.on("success", function (file, response) {
                     console.log('Dropzone success response:', response);
+                    if (response.predict) {
+                        console.log('predict:', response.predict);
+                    }
 
                     // Remove dropzone thumbnail
                     this.removeFile(file);
