@@ -1,12 +1,11 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center gap-3">
-            <img src="{{ asset('images/victaulicLogo_200.png') }}" alt="Victaulic" class="h-8 w-auto">
-            <div class="text-xl font-semibold text-gray-800">Analyze Image</div>
-        </div>
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            {{ __('Analyze an Image') }}
+        </h2>
     </x-slot>
 
-    <div class="py-6">
+    <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
             {{-- Upload card --}}
