@@ -98,7 +98,7 @@ class PhotoUploadController extends Controller
     public function store(Request $request): JsonResponse
     {
 
-        Log::info('in store ident 2342432432 ERROR DATA =>> ');
+        Log::info('in PhotoUploadController store ident 2342432432 ');
         try {
             $request->validate([
                 'file' => 'required|mimes:jpg,jpeg,png,gif,webp|max:204800', // 200 MB
@@ -215,6 +215,7 @@ class PhotoUploadController extends Controller
         ]);
 // Call Predict API using the scaled image (or original)
         $predict = null;
+        Log::info('in PhotoUploadController store ident 32323 calling TensorFlow Predict =>> ');
 
         try {
             $apiBase = rtrim(config('services.predict.base_url'), '/');
@@ -236,7 +237,10 @@ class PhotoUploadController extends Controller
                     'body' => $predictResponse->body(),
                 ]);
             } else {
+                Log::info('in PhotoUploadController store ident qq   TensorFlow Predict =>> SUCCESS');
+
                 $predict = $predictResponse->json();
+                Log::info('in PhotoUploadController store ident qq   TensorFlow Predict =>> response data'.$predict);
 
                 // Optional: store prediction in DB (add columns first if you want)
                 // $photo->update([
