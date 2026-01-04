@@ -241,7 +241,7 @@ class PhotoUploadController extends Controller
 
                 $predict = $predictResponse->json();
                 Log::info(
-                    'in PhotoUploadController store ident qq   TensorFlow Predict =>> response data: ' . json_encode($predict$predict, JSON_PRETTY_PRINT)
+                    'in PhotoUploadController store ident qq   TensorFlow Predict =>> response data: ' . json_encode($predict, JSON_PRETTY_PRINT)
                 );
 
                 // Optional: store prediction in DB (add columns first if you want)
