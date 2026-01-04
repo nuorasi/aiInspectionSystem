@@ -311,7 +311,145 @@
                     "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.content || "{{ csrf_token() }}"
                 },
 
+                // init: function () {
+                //     const spinner = document.getElementById('upload-spinner');
+                //     const statusEl = document.getElementById('upload-status');
+                //     const imageWrapper = document.getElementById('uploaded-image-wrapper');
+                //     const imageEl = document.getElementById('uploaded-image');
+                //     const dropzoneWrapper = document.getElementById('dropzone-wrapper');
+                //     const uploadAnotherBtn = document.getElementById('upload-another-btn');
+                //     const dzMessage = document.querySelector('#learn-dropzone .dz-message');
+                //
+                //     this.on("sending", function () {
+                //         if (dropzoneWrapper) dropzoneWrapper.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
+                //         if (spinner) spinner.classList.remove('hidden');
+                //         if (statusEl) statusEl.textContent = 'Uploading file...';
+                //     });
+                //
+                //     this.on("success", function (file, response) {
+                //         console.log('Dropzone success response:', response);
+                //
+                //         // Remove dropzone thumbnail
+                //         this.removeFile(file);
+                //
+                //         if (spinner) spinner.classList.add('hidden');
+                //
+                //         const bytes = file.size;
+                //         let sizeText;
+                //         if (bytes > 1024 * 1024) {
+                //             sizeText = (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+                //         } else {
+                //             sizeText = (bytes / 1024).toFixed(2) + ' KB';
+                //         }
+                //
+                //         const fileDate = new Date(file.lastModified || Date.now());
+                //         const dateText = fileDate.toLocaleString();
+                //
+                //         if (statusEl) {
+                //             statusEl.textContent = 'File was loaded successfully. Size: ' + sizeText + '. Date: ' + dateText + '.';
+                //         }
+                //
+                //         // Normalize response if server returned JSON as a string
+                //         let payload = response;
+                //         if (typeof response === 'string') {
+                //             try {
+                //                 payload = JSON.parse(response);
+                //             } catch (e) {
+                //                 console.error('Failed to parse response JSON', e);
+                //             }
+                //         }
+                //
+                //         // Pick best image URL from your Laravel response shape
+                //         const imageUrl =
+                //             payload?.url ||
+                //             payload?.urls?.scaled ||
+                //             payload?.urls?.original ||
+                //             payload?.urls?.thumb ||
+                //             null;
+                //
+                //         if (imageEl && imageUrl) {
+                //             imageEl.src = imageUrl;
+                //             if (imageWrapper) imageWrapper.classList.remove('hidden');
+                //         } else {
+                //             console.warn('No image URL returned in response', payload);
+                //         }
+                //
+                //         if (dzMessage) {
+                //             dzMessage.textContent =
+                //                 'File uploaded. Use "Upload another file" if you want to add more images for the AI engine to learn.';
+                //         }
+                //
+                //         if (dropzoneWrapper) {
+                //             dropzoneWrapper.classList.add('opacity-0', 'pointer-events-none');
+                //             setTimeout(function () {
+                //                 dropzoneWrapper.classList.add('hidden');
+                //             }, 500);
+                //         }
+                //
+                //         if (uploadAnotherBtn) uploadAnotherBtn.classList.remove('hidden');
+                //
+                //         // Resolve photoId for modal
+                //         const photoId = payload?.photo?.id ?? null;
+                //         console.log('Resolved photoId for modal:', photoId);
+                //
+                //         if (photoId && typeof openMetaModal === 'function') {
+                //             openMetaModal(photoId);
+                //         }
+                //     });
+                //
+                //     this.on("error", function (file, errorMessage, xhr) {
+                //         if (spinner) spinner.classList.add('hidden');
+                //
+                //         let msg = 'Error uploading file.';
+                //
+                //         if (xhr && xhr.responseText) {
+                //             try {
+                //                 const res = JSON.parse(xhr.responseText);
+                //                 if (res.errors && res.errors.file && res.errors.file.length) {
+                //                     msg = res.errors.file[0];
+                //                 } else if (res.message) {
+                //                     msg = res.message;
+                //                 } else {
+                //                     msg = 'Server error: ' + xhr.status + ' ' + xhr.statusText;
+                //                 }
+                //             } catch (e) {
+                //                 msg = xhr.responseText.substring(0, 200);
+                //             }
+                //         } else if (typeof errorMessage === 'string') {
+                //             msg = errorMessage;
+                //         } else if (typeof errorMessage === 'object') {
+                //             msg = JSON.stringify(errorMessage);
+                //         }
+                //
+                //         if (statusEl) statusEl.textContent = 'Error uploading file: ' + msg;
+                //
+                //         console.error('Dropzone error details:', { file, errorMessage, xhr });
+                //     });
+                //
+                //     if (uploadAnotherBtn) {
+                //         uploadAnotherBtn.addEventListener('click', function () {
+                //             if (statusEl) statusEl.textContent = '';
+                //
+                //             if (dropzoneWrapper) {
+                //                 dropzoneWrapper.classList.remove('hidden');
+                //                 setTimeout(function () {
+                //                     dropzoneWrapper.classList.remove('opacity-0', 'pointer-events-none');
+                //                 }, 10);
+                //             }
+                //
+                //             if (dzMessage) {
+                //                 dzMessage.textContent =
+                //                     'Please drop photos here that you would like the AI engine to learn. You can also click to browse for files.';
+                //             }
+                //
+                //             uploadAnotherBtn.classList.add('hidden');
+                //         });
+                //     }
+                // }
+
                 init: function () {
+                    const dz = this;
+
                     const spinner = document.getElementById('upload-spinner');
                     const statusEl = document.getElementById('upload-status');
                     const imageWrapper = document.getElementById('uploaded-image-wrapper');
@@ -320,132 +458,98 @@
                     const uploadAnotherBtn = document.getElementById('upload-another-btn');
                     const dzMessage = document.querySelector('#learn-dropzone .dz-message');
 
-                    this.on("sending", function () {
-                        if (dropzoneWrapper) dropzoneWrapper.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
-                        if (spinner) spinner.classList.remove('hidden');
-                        if (statusEl) statusEl.textContent = 'Uploading file...';
+                    dz.on("sending", function () {
+                        dropzoneWrapper.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
+                        spinner.classList.remove('hidden');
+                        statusEl.textContent = 'Uploading file...';
                     });
 
-                    this.on("success", function (file, response) {
-                        console.log('Dropzone success response:', response);
+                    dz.on("success", function (file, response) {
+                        // Hide spinner
+                        spinner.classList.add('hidden');
 
-                        // Remove dropzone thumbnail
-                        this.removeFile(file);
+                        // Basic guard in case the backend returned HTML or a string
+                        if (!response || typeof response !== 'object') {
+                            statusEl.textContent = 'Upload completed, but response was not valid JSON.';
+                            return;
+                        }
 
-                        if (spinner) spinner.classList.add('hidden');
+                        // Handle app-level errors
+                        if (!response.success) {
+                            statusEl.textContent = response.message || 'Upload failed.';
+                            return;
+                        }
 
-                        const bytes = file.size;
-                        let sizeText;
-                        if (bytes > 1024 * 1024) {
-                            sizeText = (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+                        // Update UI with returned URLs (prefer scaled, fallback original)
+                        const imgUrl = response?.urls?.scaled || response?.urls?.original || null;
+
+                        if (imgUrl) {
+                            imageEl.src = imgUrl;
+                            imageWrapper.classList.remove('hidden');
+                            statusEl.textContent = 'Upload complete.';
                         } else {
-                            sizeText = (bytes / 1024).toFixed(2) + ' KB';
+                            statusEl.textContent = 'Upload complete, but no image URL was returned.';
                         }
 
-                        const fileDate = new Date(file.lastModified || Date.now());
-                        const dateText = fileDate.toLocaleString();
+                        // Optional: store predict payload if you want to render it on this page
+                        // console.log('Predict payload:', response.predict);
 
-                        if (statusEl) {
-                            statusEl.textContent = 'File was loaded successfully. Size: ' + sizeText + '. Date: ' + dateText + '.';
+                        // Hide Dropzone message if you want
+                        if (dzMessage) dzMessage.classList.add('hidden');
+
+                        // Show "Upload another" button
+                        if (uploadAnotherBtn) {
+                            uploadAnotherBtn.classList.remove('hidden');
+                            uploadAnotherBtn.classList.remove('opacity-0', 'pointer-events-none');
                         }
 
-                        // Normalize response if server returned JSON as a string
-                        let payload = response;
-                        if (typeof response === 'string') {
-                            try {
-                                payload = JSON.parse(response);
-                            } catch (e) {
-                                console.error('Failed to parse response JSON', e);
-                            }
-                        }
-
-                        // Pick best image URL from your Laravel response shape
-                        const imageUrl =
-                            payload?.url ||
-                            payload?.urls?.scaled ||
-                            payload?.urls?.original ||
-                            payload?.urls?.thumb ||
-                            null;
-
-                        if (imageEl && imageUrl) {
-                            imageEl.src = imageUrl;
-                            if (imageWrapper) imageWrapper.classList.remove('hidden');
-                        } else {
-                            console.warn('No image URL returned in response', payload);
-                        }
-
-                        if (dzMessage) {
-                            dzMessage.textContent =
-                                'File uploaded. Use "Upload another file" if you want to add more images for the AI engine to learn.';
-                        }
-
-                        if (dropzoneWrapper) {
-                            dropzoneWrapper.classList.add('opacity-0', 'pointer-events-none');
-                            setTimeout(function () {
-                                dropzoneWrapper.classList.add('hidden');
-                            }, 500);
-                        }
-
-                        if (uploadAnotherBtn) uploadAnotherBtn.classList.remove('hidden');
-
-                        // Resolve photoId for modal
-                        const photoId = payload?.photo?.id ?? null;
-                        console.log('Resolved photoId for modal:', photoId);
-
-                        if (photoId && typeof openMetaModal === 'function') {
-                            openMetaModal(photoId);
+                        // Redirect if you want to navigate to analyze page
+                        // If you want to show results on the SAME page, remove this block.
+                        if (response.redirectUrl) {
+                            window.location.href = response.redirectUrl;
                         }
                     });
 
-                    this.on("error", function (file, errorMessage, xhr) {
-                        if (spinner) spinner.classList.add('hidden');
+                    dz.on("error", function (file, errorMessage, xhr) {
+                        spinner.classList.add('hidden');
 
-                        let msg = 'Error uploading file.';
-
+                        // Try to extract Laravel validation errors / JSON message
+                        let msg = 'Upload failed.';
                         if (xhr && xhr.responseText) {
                             try {
-                                const res = JSON.parse(xhr.responseText);
-                                if (res.errors && res.errors.file && res.errors.file.length) {
-                                    msg = res.errors.file[0];
-                                } else if (res.message) {
-                                    msg = res.message;
-                                } else {
-                                    msg = 'Server error: ' + xhr.status + ' ' + xhr.statusText;
+                                const data = JSON.parse(xhr.responseText);
+                                msg = data.message || msg;
+
+                                // If Laravel validation errors exist, show the first one
+                                if (data.errors) {
+                                    const firstKey = Object.keys(data.errors)[0];
+                                    if (firstKey && data.errors[firstKey]?.length) {
+                                        msg = data.errors[firstKey][0];
+                                    }
                                 }
                             } catch (e) {
-                                msg = xhr.responseText.substring(0, 200);
+                                // If response isn't JSON, fall back to Dropzone's message
+                                if (typeof errorMessage === 'string') msg = errorMessage;
                             }
                         } else if (typeof errorMessage === 'string') {
                             msg = errorMessage;
-                        } else if (typeof errorMessage === 'object') {
-                            msg = JSON.stringify(errorMessage);
                         }
 
-                        if (statusEl) statusEl.textContent = 'Error uploading file: ' + msg;
-
-                        console.error('Dropzone error details:', { file, errorMessage, xhr });
+                        statusEl.textContent = msg;
                     });
 
+                    // Optional: clean reset for "Upload another"
                     if (uploadAnotherBtn) {
                         uploadAnotherBtn.addEventListener('click', function () {
-                            if (statusEl) statusEl.textContent = '';
-
-                            if (dropzoneWrapper) {
-                                dropzoneWrapper.classList.remove('hidden');
-                                setTimeout(function () {
-                                    dropzoneWrapper.classList.remove('opacity-0', 'pointer-events-none');
-                                }, 10);
-                            }
-
-                            if (dzMessage) {
-                                dzMessage.textContent =
-                                    'Please drop photos here that you would like the AI engine to learn. You can also click to browse for files.';
-                            }
-
-                            uploadAnotherBtn.classList.add('hidden');
+                            dz.removeAllFiles(true);
+                            imageWrapper.classList.add('hidden');
+                            imageEl.src = '';
+                            statusEl.textContent = '';
+                            if (dzMessage) dzMessage.classList.remove('hidden');
                         });
                     }
                 }
+
             });
         });
 
