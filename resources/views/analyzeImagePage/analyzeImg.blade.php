@@ -137,7 +137,7 @@
                                                 class="w-20 h-auto rounded"
                                             />
 
-                                        </td>>
+                                        </td>
 
 
                                         <td class="px-3 py-2 border">{{ $photo->product }}</td>

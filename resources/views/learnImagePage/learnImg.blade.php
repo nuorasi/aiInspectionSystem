@@ -132,15 +132,14 @@
 
                                     {{-- Thumbnail column - always visible --}}
                                     <td class="px-3 py-2 border">
-                                        <img>
-                                        <!--src="{{ Storage::disk($photo->disk)->url($photo->path) }}" -->
-                                        src="{{ Storage::disk($photo->disk)->url($photo->path_thumb) }}"
-
-                                        alt="Image"
+                                        <img
+                                            src="{{ Storage::disk($photo->disk)->url($photo->path_thumb) }}"
+                                            alt="Image"
                                             class="w-20 h-auto rounded"
-                                        <img>
-                                    </td>>
+                                        />
+
                                     </td>
+
 
                                     <td class="px-3 py-2 border">{{ $photo->product }}</td>
                                     <td class="px-3 py-2 border">{{ $photo->size }}</td>
