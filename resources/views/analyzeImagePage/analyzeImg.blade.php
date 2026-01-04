@@ -64,7 +64,6 @@
                     {{-- Photos Table --}}
                     <div class="mt-10">
                         <h3 class="text-lg font-semibold mb-4">Uploaded Photos</h3>
-
                         <div class="overflow-x-auto">
                             <table class="min-w-full text-sm text-left border border-gray-600">
                                 <thead class="bg-gray-700 text-white">
@@ -132,15 +131,14 @@
 
                                         {{-- Thumbnail column - always visible --}}
                                         <td class="px-3 py-2 border">
-                                            <img>
-                                            <!--src="{{ Storage::disk($photo->disk)->url($photo->path) }}" -->
-                                            src="{{ Storage::disk($photo->disk)->url($photo->path_thumb) }}"
+                                            <img
+                                                src="{{ Storage::disk($photo->disk)->url($photo->path_thumb) }}"
+                                                alt="Image"
+                                                class="w-20 h-auto rounded"
+                                            />
 
-                                            alt="Image"
-                                            class="w-20 h-auto rounded"
-                                            <img>
                                         </td>>
-                                        </td>
+
 
                                         <td class="px-3 py-2 border">{{ $photo->product }}</td>
                                         <td class="px-3 py-2 border">{{ $photo->size }}</td>
