@@ -14,6 +14,6 @@ class AnalyzeImageController extends Controller
     {
         Log::info('IN indexAi ident 112722d');
 
-        return view('analyzeImagePage.analyzeImg');
+        return view('analyzeImagePage.analyzeImg'); //
     }
 }
