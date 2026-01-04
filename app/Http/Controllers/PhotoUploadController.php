@@ -256,6 +256,7 @@ class PhotoUploadController extends Controller
                 'error' => $e->getMessage(),
             ]);
         }
+        Log::info('in PhotoUploadController store ident qq   TensorFlow Predict =>> RESPONSE');
 
         return response()->json([
             'success' => true,
