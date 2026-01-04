@@ -125,7 +125,7 @@ class PhotoUploadController extends Controller
         $filename  = $safeBase . '_' . now()->format('Ymd_His') . '_' . bin2hex(random_bytes(4)) . '.' . $extension;
 
 
-        Log::info('in store ident 2342432432 ERROR DATA =>> ' . $filename);
+        Log::info('in store ident 2342432432 filename =>> ' . $filename);
 
 
         // 1) Store original
@@ -240,7 +240,9 @@ class PhotoUploadController extends Controller
                 Log::info('in PhotoUploadController store ident qq   TensorFlow Predict =>> SUCCESS');
 
                 $predict = $predictResponse->json();
-                Log::info('in PhotoUploadController store ident qq   TensorFlow Predict =>> response data'.$predict);
+                Log::info(
+                    'in PhotoUploadController store ident qq   TensorFlow Predict =>> response data: ' . json_encode($predict$predict, JSON_PRETTY_PRINT)
+                );
 
                 // Optional: store prediction in DB (add columns first if you want)
                 // $photo->update([
