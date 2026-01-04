@@ -17,4 +17,4 @@ class AnalyzeImageController extends Controller
 
         return view('analyzeImagePage.analyzeImg', compact('photos')); //
     }
-}g', compact('photos'));
+}
