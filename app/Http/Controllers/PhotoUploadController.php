@@ -258,6 +258,18 @@ class PhotoUploadController extends Controller
         }
         Log::info('in PhotoUploadController store ident qq   TensorFlow Predict =>> RESPONSE');
 
+//        return response()->json([
+//            'success' => true,
+//            'photo'   => $photo,
+//            'urls'    => [
+//                'original' => Storage::disk($disk)->url($originalPath),
+//                'scaled'   => Storage::disk($disk)->url($scaledPath),
+//                'thumb'    => Storage::disk($disk)->url($thumbPath),
+//            ],
+//            'predict'  => $predict, // include prediction payload
+//            'redirect' => route('analyzeImagePage.analyzeImg'),
+//        ]);
+
         return response()->json([
             'success' => true,
             'photo'   => $photo,
@@ -266,10 +278,9 @@ class PhotoUploadController extends Controller
                 'scaled'   => Storage::disk($disk)->url($scaledPath),
                 'thumb'    => Storage::disk($disk)->url($thumbPath),
             ],
-            'predict'  => $predict, // include prediction payload
-            'redirect' => route('analyzeImagePage.analyzeImg'),
+            'predict'     => $predict, // include prediction payload
+            'redirectUrl' => route('analyzeImagePage.analyzeImg'),
         ]);
-
     }
 
 
