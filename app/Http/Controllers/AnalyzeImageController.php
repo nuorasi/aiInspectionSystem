@@ -13,7 +13,8 @@ class AnalyzeImageController extends Controller
     public function analyzeImg(): View
     {
         Log::info('IN indexAi ident 112722d');
+        $photos = Photo::orderBy('id', 'desc')->get(); // or paginate()
 
-        return view('analyzeImagePage.analyzeImg'); //
+        return view('analyzeImagePage.analyzeImg', compact('photos')); //
     }
-}
+}g', compact('photos'));
