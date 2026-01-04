@@ -5,19 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Photo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\View\View;
 
 class AnalyzeImageController extends Controller
 {
     //
-    public function analyzeImg(Request $request): string
+    public function analyzeImg(): View
     {
-        //   Log::info('IN oAuthTest ident 112722d Input variable userId= '.$request->userId);
-        Log::info('IN indexAi ident 112722d ' );
+        Log::info('IN indexAi ident 112722d');
 
-       // return $this->apiResponse(200, 'Success', ['oAuthTestResponse' => $oneRosterBearerToken[0]->tokenValue]);
-
-        $photos = Photo::orderBy('id', 'desc')->get(); // or paginate()
-        return view('analyzeImagePage.analyzeImg', compact('photos'));
-
+        return view('analyzeImg'); // or whatever your blade name is
     }
 }
