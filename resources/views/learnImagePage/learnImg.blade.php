@@ -464,7 +464,7 @@
             if (!dropzoneEl) return;
             console.log('DOMContentLoaded 3')
 
-            if (dropzoneEl.dropzone) return;
+         //   if (dropzoneEl.dropzone) return;
             console.log('DOMContentLoaded 4')
 
             const spinner = document.getElementById('upload-spinner');
