@@ -28,6 +28,6 @@ class LearnImageController extends Controller
 //        Log::info('IN LearnImageController ident 112722d productSizes->', (array)print_r($productSizes, true));
 //        return view('your-blade-view', compact('products', 'productSizes'));
 
-        return view('learnImagePage.learnImg', compact('photos','products','productSizes'));
+        return view('learnImagePage.learnImg', compact('photos','productSizes','products'));
     }
 }
