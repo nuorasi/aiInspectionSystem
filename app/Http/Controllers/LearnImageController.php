@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Photo;
 use App\Models\Products;
-use App\Models\Product_sizes;
+use App\Models\ProductSize;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -21,7 +21,7 @@ class LearnImageController extends Controller
 
         $products = Products::select('id', 'name')->orderBy('name')->get();
 
-        $productSizes = Product_sizes::select('id', 'productId', 'size')
+        $productSizes = ProductSize::select('id', 'productId', 'size')
             ->orderBy('size')
             ->get();
 //        Log::info('IN LearnImageController ident 112722d products->', (array)print_r($products, true));
