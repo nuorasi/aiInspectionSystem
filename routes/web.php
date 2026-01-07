@@ -6,6 +6,7 @@ use App\Http\Controllers\ReviewYourImagesController;
 use App\Http\Controllers\LearnImageController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PredictController;
+use App\Models\Product_sizes;
 
 Route::get('/', function () {
     return view('welcome');
@@ -41,7 +42,12 @@ Route::get('/photos/upload', function () {
 })->name('photos.upload.form');
 
 
-
+Route::get('/products/{product}/sizes', function ($productId) {
+    return Product_sizes::where('productId', $productId)
+        ->select('id', 'size')
+        ->orderBy('size')
+        ->get();
+})->name('products.sizes');
 
 Route::post('/photos', [PhotoUploadControllerForTrain::class, 'store'])->name('photos.store');
 

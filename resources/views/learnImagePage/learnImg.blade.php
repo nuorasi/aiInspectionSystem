@@ -48,6 +48,7 @@
                         </div>
 
                         {{-- Product Size (filtered by product) --}}
+                        {{-- Product Size (loads after product selection) --}}
                         <div>
                             <label for="product_size_id" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                                 Product Size
@@ -58,11 +59,9 @@
                                 disabled
                             >
                                 <option value="">Select size</option>
-                                @foreach ($productSizes as $p)
-                                    <option value="{{ $p->id }}">{{ $p->size }}</option>
-                                @endforeach
                             </select>
                         </div>
+
                     </div>
 
                     <p id="selection-hint" class="mt-3 text-sm text-gray-600 dark:text-gray-300">
@@ -70,6 +69,64 @@
                     </p>
                 </div>
 
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const productEl = document.getElementById('product_id');
+                        const sizeEl = document.getElementById('product_size_id');
+
+                        if (!productEl || !sizeEl) return;
+
+                        function setSizeLoading() {
+                            sizeEl.disabled = true;
+                            sizeEl.innerHTML = '<option value="">Loading sizes...</option>';
+                        }
+
+                        function resetSizes() {
+                            sizeEl.disabled = true;
+                            sizeEl.innerHTML = '<option value="">Select size</option>';
+                        }
+
+                        productEl.addEventListener('change', function () {
+                            const productId = this.value;
+                            resetSizes();
+
+                            if (!productId) return;
+
+                            setSizeLoading();
+
+                            fetch("{{ url('/products') }}/" + productId + "/sizes", {
+                                headers: { 'Accept': 'application/json' }
+                            })
+                                .then(res => {
+                                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                                    return res.json();
+                                })
+                                .then(sizes => {
+                                    sizeEl.innerHTML = '<option value="">Select size</option>';
+
+                                    if (!Array.isArray(sizes) || sizes.length === 0) {
+                                        sizeEl.innerHTML = '<option value="">No sizes found</option>';
+                                        sizeEl.disabled = true;
+                                        return;
+                                    }
+
+                                    sizes.forEach(s => {
+                                        const opt = document.createElement('option');
+                                        opt.value = s.id;
+                                        opt.textContent = s.size;
+                                        sizeEl.appendChild(opt);
+                                    });
+
+                                    sizeEl.disabled = false;
+                                })
+                                .catch(err => {
+                                    console.error('Failed to load sizes', err);
+                                    sizeEl.innerHTML = '<option value="">Error loading sizes</option>';
+                                    sizeEl.disabled = true;
+                                });
+                        });
+                    });
+                </script>
                 {{-- Provide sizes to JS for filtering --}}
                 <script>
                     window.__PRODUCT_SIZES__ = @json($productSizes);
