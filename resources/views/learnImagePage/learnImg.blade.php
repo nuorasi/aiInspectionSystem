@@ -187,7 +187,7 @@
                                         {{-- Thumbnail column - always visible --}}
                                         <td class="px-3 py-2 border">
                                             <img
-                                                src="{{ Storage::disk($photo->disk)->url($photo->path_thumb) }}"
+                                                src="{{ Storage::disk($photo->disk)->url($photo->path) }}"
                                                 alt="Image"
                                                 class="w-20 h-auto rounded"
                                             />
