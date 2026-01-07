@@ -77,6 +77,9 @@
                             id="learn-dropzone"
                         >
                             @csrf
+                            <input type="hidden" name="installationStatus" id="dz-installationStatus">
+                            <input type="hidden" name="product_id" id="dz-product_id">
+                            <input type="hidden" name="product_size_id" id="dz-product_size_id">
 
                             <div class="dz-message">
                                 Please drop photos here that you would like the AI engine to learn.
@@ -499,19 +502,24 @@
                 },
 
                 init: function () {
+                    // this.on("sending", function (file, xhr, formData) {
+                    //     if (!allSelected()) {
+                    //         this.removeFile(file);
+                    //         if (statusEl) statusEl.textContent = 'Please select installation status, product, and product size before uploading.';
+                    //         return;
+                    //     }
+                    //
+                    //     formData.append("installationStatus", installEl.value);
+                    //     formData.append("product_id", productEl.value);
+                    //     formData.append("product_size_id", sizeEl.value);
+                    //
+                    //     if (spinner) spinner.classList.remove('hidden');
+                    //     if (statusEl) statusEl.textContent = 'Uploading file...';
+                    // });
                     this.on("sending", function (file, xhr, formData) {
-                        if (!allSelected()) {
-                            this.removeFile(file);
-                            if (statusEl) statusEl.textContent = 'Please select installation status, product, and product size before uploading.';
-                            return;
-                        }
-
-                        formData.append("installationStatus", installEl.value);
-                        formData.append("product_id", productEl.value);
-                        formData.append("product_size_id", sizeEl.value);
-
-                        if (spinner) spinner.classList.remove('hidden');
-                        if (statusEl) statusEl.textContent = 'Uploading file...';
+                        formData.set("installationStatus", document.getElementById('installation_status')?.value || '');
+                        formData.set("product_id", document.getElementById('product_id')?.value || '');
+                        formData.set("product_size_id", document.getElementById('product_size_id')?.value || '');
                     });
 
                     this.on("success", function (file, response) {
@@ -700,6 +708,30 @@
                     }
                 });
             });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const installEl = document.getElementById('installation_status');
+            const productEl = document.getElementById('product_id');
+            const sizeEl = document.getElementById('product_size_id');
+
+            const dzInstall = document.getElementById('dz-installationStatus');
+            const dzProduct = document.getElementById('dz-product_id');
+            const dzSize = document.getElementById('dz-product_size_id');
+
+            function syncHidden() {
+                if (dzInstall) dzInstall.value = installEl?.value || '';
+                if (dzProduct) dzProduct.value = productEl?.value || '';
+                if (dzSize) dzSize.value = sizeEl?.value || '';
+            }
+
+            if (installEl) installEl.addEventListener('change', syncHidden);
+            if (productEl) productEl.addEventListener('change', syncHidden);
+            if (sizeEl) sizeEl.addEventListener('change', syncHidden);
+
+            // initial
+            syncHidden();
         });
     </script>
 
