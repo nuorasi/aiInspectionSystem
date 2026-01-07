@@ -25,7 +25,7 @@ class LearnImageController extends Controller
             ->orderBy('size')
             ->get();
         Log::info('IN LearnImageController ident 112722d products->', $products);
-        Log::info('IN LearnImageController ident 112722d productSizes->', $productSizes);
+        Log::info('IN LearnImageController ident 112722d productSizes->', $productSizes); //
 //        return view('your-blade-view', compact('products', 'productSizes'));
 
         return view('learnImagePage.learnImg', compact('photos','products','productSizes'));
