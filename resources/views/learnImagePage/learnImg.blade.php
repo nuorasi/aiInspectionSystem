@@ -558,7 +558,7 @@
                         }
 
                         if (dzMessage) {
-                            dzMessage.textContent = 'File uploaded. Use "Upload another file" to add more images.';
+                            dzMessage.textContent = 'Upload saved. Resetting page and updating grid... ';
                         }
 
                         hideDropzone();
@@ -568,6 +568,10 @@
                         if (photoId && typeof openMetaModal === 'function') {
                             openMetaModal(photoId);
                         }
+
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 800);
                     });
 
                     this.on("error", function (file, errorMessage, xhr) {
