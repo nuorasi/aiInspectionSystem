@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Learn an Image') }}
+            {{ __('Upload images to train the AI model') }}
         </h2>
     </x-slot>
 
@@ -11,7 +11,7 @@
 
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <h3 class="text-lg font-semibold mb-4">
-                        Upload photos for the AI engine
+                        Upload photo(s) of the same Installation Status, Product, and Size to Train the AI model
                     </h3>
 
                     {{-- Required selections before upload --}}
