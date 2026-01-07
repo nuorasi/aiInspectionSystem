@@ -31,7 +31,7 @@
                         :active="request()->routeIs('learnImagePage.learnImg')"
                         class="text-white hover:text-orange-300"
                     >
-                        Learn an Image
+                        Train AI Model
                     </x-nav-link>
 
                     <x-nav-link
