@@ -64,7 +64,7 @@
                         </div>
 
                         <p id="selection-hint" class="mt-3 text-sm text-gray-600 dark:text-gray-300">
-                            Select installation status, product, and product size to enable uploads.
+                            Select Installation Status, Product, and Product Size to enable uploads.
                         </p>
                     </div>
 
