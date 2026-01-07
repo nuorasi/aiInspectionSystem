@@ -568,7 +568,7 @@
                         if (photoId && typeof openMetaModal === 'function') {
                             openMetaModal(photoId);
                         }
-
+                        console.log('reloading page')
                         setTimeout(() => {
                             window.location.reload();
                         }, 800);
