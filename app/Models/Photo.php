@@ -10,6 +10,8 @@ class Photo extends Model
     protected $fillable = [
         'disk',
         'path',
+        'scaledPath',
+        'thumbPath',
         'file_name',
         'mime_type',
         'size_bytes',
