@@ -13,10 +13,69 @@
                     <h3 class="text-lg font-semibold mb-4">
                         Upload photos for the AI engine
                     </h3>
+                {{-- Required selections before upload --}}
+                <div class="mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {{-- Installation Status --}}
+                        <div>
+                            <label for="installation_status" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                                Installation Status
+                            </label>
+                            <select
+                                id="installation_status"
+                                class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900"
+                            >
+                                <option value="">Select status</option>
+                                <option value="Complete">Complete</option>
+                                <option value="Incomplete">Incomplete</option>
+                            </select>
+                        </div>
+
+                        {{-- Product --}}
+                        <div>
+                            <label for="product_id" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                                Product
+                            </label>
+                            <select
+                                id="product_id"
+                                class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900"
+                            >
+                                <option value="">Select product</option>
+                                @foreach ($products as $p)
+                                    <option value="{{ $p->id }}">{{ $p->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        {{-- Product Size (filtered by product) --}}
+                        <div>
+                            <label for="product_size_id" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                                Product Size
+                            </label>
+                            <select
+                                id="product_size_id"
+                                class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900"
+                                disabled
+                            >
+                                <option value="">Select size</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <p id="selection-hint" class="mt-3 text-sm text-gray-600 dark:text-gray-300">
+                        Select installation status, product, and product size to enable uploads.
+                    </p>
+                </div>
+
+                {{-- Provide sizes to JS for filtering --}}
+                <script>
+                    window.__PRODUCT_SIZES__ = @json($productSizes);
+                </script>
 
                     {{-- Dropzone wrapper for fade in / out --}}
-                    <div id="dropzone-wrapper" class="relative transition-opacity duration-500">
-                        <form
+                <div id="dropzone-wrapper" class="relative transition-opacity duration-500 hidden opacity-0 pointer-events-none">
+
+                <form
                             action="{{ route('photos.upload') }}"
                             method="post"
                             class="dropzone"
@@ -295,162 +354,218 @@
     <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
 
     <script>
-        Dropzone.autoDiscover = false;
 
-        document.addEventListener('DOMContentLoaded', function () {
+            Dropzone.autoDiscover = false;
+
+            document.addEventListener('DOMContentLoaded', function () {
             const dropzoneEl = document.getElementById('learn-dropzone');
             if (!dropzoneEl) return;
 
             // Guard: prevent "Dropzone already attached."
             if (dropzoneEl.dropzone) return;
 
-            const dz = new Dropzone(dropzoneEl, {
-                paramName: "file",
-                maxFilesize: 200,
-                acceptedFiles: "image/*",
-                headers: {
-                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.content || "{{ csrf_token() }}"
-                },
+            const spinner = document.getElementById('upload-spinner');
+            const statusEl = document.getElementById('upload-status');
+            const imageWrapper = document.getElementById('uploaded-image-wrapper');
+            const imageEl = document.getElementById('uploaded-image');
+            const dropzoneWrapper = document.getElementById('dropzone-wrapper');
+            const uploadAnotherBtn = document.getElementById('upload-another-btn');
+            const dzMessage = document.querySelector('#learn-dropzone .dz-message');
 
-                init: function () {
-                    const spinner = document.getElementById('upload-spinner');
-                    const statusEl = document.getElementById('upload-status');
-                    const imageWrapper = document.getElementById('uploaded-image-wrapper');
-                    const imageEl = document.getElementById('uploaded-image');
-                    const dropzoneWrapper = document.getElementById('dropzone-wrapper');
-                    const uploadAnotherBtn = document.getElementById('upload-another-btn');
-                    const dzMessage = document.querySelector('#learn-dropzone .dz-message');
+            const installEl = document.getElementById('installation_status');
+            const productEl = document.getElementById('product_id');
+            const sizeEl = document.getElementById('product_size_id');
+            const hintEl = document.getElementById('selection-hint');
 
-                    this.on("sending", function () {
-                        if (dropzoneWrapper) dropzoneWrapper.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
-                        if (spinner) spinner.classList.remove('hidden');
-                        if (statusEl) statusEl.textContent = 'Uploading file...';
-                    });
+            const allSizes = Array.isArray(window.__PRODUCT_SIZES__) ? window.__PRODUCT_SIZES__ : [];
 
-                    this.on("success", function (file, response) {
-                        console.log('Dropzone success response:', response);
+            function allSelected() {
+            return !!installEl?.value && !!productEl?.value && !!sizeEl?.value;
+        }
 
-                        // Remove dropzone thumbnail
-                        this.removeFile(file);
+            function hideDropzone() {
+            if (!dropzoneWrapper) return;
+            dropzoneWrapper.classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(function () {
+            dropzoneWrapper.classList.add('hidden');
+        }, 10);
+        }
 
-                        if (spinner) spinner.classList.add('hidden');
+            function showDropzone() {
+            if (!dropzoneWrapper) return;
+            dropzoneWrapper.classList.remove('hidden');
+            setTimeout(function () {
+            dropzoneWrapper.classList.remove('opacity-0', 'pointer-events-none');
+        }, 10);
+        }
 
-                        const bytes = file.size;
-                        let sizeText;
-                        if (bytes > 1024 * 1024) {
-                            sizeText = (bytes / (1024 * 1024)).toFixed(2) + ' MB';
-                        } else {
-                            sizeText = (bytes / 1024).toFixed(2) + ' KB';
-                        }
+            function resetSizes() {
+            if (!sizeEl) return;
+            sizeEl.innerHTML = '<option value="">Select size</option>';
+            sizeEl.value = '';
+            sizeEl.disabled = true;
+        }
 
-                        const fileDate = new Date(file.lastModified || Date.now());
-                        const dateText = fileDate.toLocaleString();
+            function loadSizesForProduct(productId) {
+            resetSizes();
+            if (!sizeEl || !productId) return;
 
-                        if (statusEl) {
-                            statusEl.textContent = 'File was loaded successfully. Size: ' + sizeText + '. Date: ' + dateText + '.';
-                        }
+            const sizes = allSizes.filter(s => String(s.productId) === String(productId));
 
-                        // Normalize response if server returned JSON as a string
-                        let payload = response;
-                        if (typeof response === 'string') {
-                            try {
-                                payload = JSON.parse(response);
-                            } catch (e) {
-                                console.error('Failed to parse response JSON', e);
-                            }
-                        }
-
-                        // Pick best image URL from your Laravel response shape
-                        const imageUrl =
-                            payload?.url ||
-                            payload?.urls?.scaled ||
-                            payload?.urls?.original ||
-                            payload?.urls?.thumb ||
-                            null;
-
-                        if (imageEl && imageUrl) {
-                            imageEl.src = imageUrl;
-                            if (imageWrapper) imageWrapper.classList.remove('hidden');
-                        } else {
-                            console.warn('No image URL returned in response', payload);
-                        }
-
-                        if (dzMessage) {
-                            dzMessage.textContent =
-                                'File uploaded. Use "Upload another file" if you want to add more images for the AI engine to learn.';
-                        }
-
-                        if (dropzoneWrapper) {
-                            dropzoneWrapper.classList.add('opacity-0', 'pointer-events-none');
-                            setTimeout(function () {
-                                dropzoneWrapper.classList.add('hidden');
-                            }, 500);
-                        }
-
-                        if (uploadAnotherBtn) uploadAnotherBtn.classList.remove('hidden');
-
-                        // Resolve photoId for modal
-                        const photoId = payload?.photo?.id ?? null;
-                        console.log('Resolved photoId for modal:', photoId);
-
-                        if (photoId && typeof openMetaModal === 'function') {
-                            openMetaModal(photoId);
-                        }
-                    });
-
-                    this.on("error", function (file, errorMessage, xhr) {
-                        if (spinner) spinner.classList.add('hidden');
-
-                        let msg = 'Error uploading file.';
-
-                        if (xhr && xhr.responseText) {
-                            try {
-                                const res = JSON.parse(xhr.responseText);
-                                if (res.errors && res.errors.file && res.errors.file.length) {
-                                    msg = res.errors.file[0];
-                                } else if (res.message) {
-                                    msg = res.message;
-                                } else {
-                                    msg = 'Server error: ' + xhr.status + ' ' + xhr.statusText;
-                                }
-                            } catch (e) {
-                                msg = xhr.responseText.substring(0, 200);
-                            }
-                        } else if (typeof errorMessage === 'string') {
-                            msg = errorMessage;
-                        } else if (typeof errorMessage === 'object') {
-                            msg = JSON.stringify(errorMessage);
-                        }
-
-                        if (statusEl) statusEl.textContent = 'Error uploading file: ' + msg;
-
-                        console.error('Dropzone error details:', { file, errorMessage, xhr });
-                    });
-
-                    if (uploadAnotherBtn) {
-                        uploadAnotherBtn.addEventListener('click', function () {
-                            if (statusEl) statusEl.textContent = '';
-
-                            if (dropzoneWrapper) {
-                                dropzoneWrapper.classList.remove('hidden');
-                                setTimeout(function () {
-                                    dropzoneWrapper.classList.remove('opacity-0', 'pointer-events-none');
-                                }, 10);
-                            }
-
-                            if (dzMessage) {
-                                dzMessage.textContent =
-                                    'Please drop photos here that you would like the AI engine to learn. You can also click to browse for files.';
-                            }
-
-                            uploadAnotherBtn.classList.add('hidden');
-                        });
-                    }
-                }
-            });
+            sizes.forEach(function (s) {
+            const opt = document.createElement('option');
+            opt.value = s.id;
+            opt.textContent = s.size;
+            sizeEl.appendChild(opt);
         });
 
+            sizeEl.disabled = sizes.length === 0;
+        }
+
+            function updateUI() {
+            if (allSelected()) {
+            showDropzone();
+            if (hintEl) hintEl.textContent = 'Ready to upload.';
+        } else {
+            hideDropzone();
+            if (hintEl) hintEl.textContent = 'Select installation status, product, and product size to enable uploads.';
+        }
+        }
+
+            // Wire dropdown events
+            if (productEl) {
+            productEl.addEventListener('change', function () {
+            loadSizesForProduct(productEl.value);
+            updateUI();
+        });
+        }
+
+            if (installEl) installEl.addEventListener('change', updateUI);
+            if (sizeEl) sizeEl.addEventListener('change', updateUI);
+
+            // Initial UI state
+            resetSizes();
+            updateUI();
+
+            const dz = new Dropzone(dropzoneEl, {
+            paramName: "file",
+            maxFilesize: 200,
+            acceptedFiles: "image/*",
+            headers: {
+            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.content || "{{ csrf_token() }}"
+        },
+
+            // Prevent upload if selections are not complete
+            accept: function (file, done) {
+            if (!allSelected()) {
+            done("Please select installation status, product, and product size before uploading.");
+            return;
+        }
+            done();
+        },
+
+            init: function () {
+            this.on("sending", function (file, xhr, formData) {
+            if (!allSelected()) {
+            this.removeFile(file);
+            if (statusEl) statusEl.textContent = 'Please select installation status, product, and product size before uploading.';
+            return;
+        }
+
+            // Append metadata to upload request
+            formData.append("installationStatus", installEl.value);
+            formData.append("product_id", productEl.value);
+            formData.append("product_size_id", sizeEl.value);
+
+            if (spinner) spinner.classList.remove('hidden');
+            if (statusEl) statusEl.textContent = 'Uploading file...';
+        });
+
+            this.on("success", function (file, response) {
+            console.log('Dropzone success response:', response);
+
+            this.removeFile(file);
+            if (spinner) spinner.classList.add('hidden');
+
+            const bytes = file.size;
+            let sizeText;
+            if (bytes > 1024 * 1024) {
+            sizeText = (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        } else {
+            sizeText = (bytes / 1024).toFixed(2) + ' KB';
+        }
+
+            const fileDate = new Date(file.lastModified || Date.now());
+            const dateText = fileDate.toLocaleString();
+
+            if (statusEl) {
+            statusEl.textContent = 'File was loaded successfully. Size: ' + sizeText + '. Date: ' + dateText + '.';
+        }
+
+            let payload = response;
+            if (typeof response === 'string') {
+            try { payload = JSON.parse(response); } catch (e) {}
+        }
+
+            const imageUrl =
+            payload?.url ||
+            payload?.urls?.scaled ||
+            payload?.urls?.original ||
+            payload?.urls?.thumb ||
+            null;
+
+            if (imageEl && imageUrl) {
+            imageEl.src = imageUrl;
+            if (imageWrapper) imageWrapper.classList.remove('hidden');
+        }
+
+            if (dzMessage) {
+            dzMessage.textContent =
+            'File uploaded. Use "Upload another file" to add more images.';
+        }
+
+            // Hide dropzone after success, user can click Upload another file to show it again
+            hideDropzone();
+
+            if (uploadAnotherBtn) uploadAnotherBtn.classList.remove('hidden');
+
+            const photoId = payload?.photo?.id ?? null;
+            if (photoId && typeof openMetaModal === 'function') {
+            openMetaModal(photoId);
+        }
+        });
+
+            this.on("error", function (file, errorMessage, xhr) {
+            if (spinner) spinner.classList.add('hidden');
+
+            let msg = 'Error uploading file.';
+            if (typeof errorMessage === 'string') msg = errorMessage;
+
+            if (statusEl) statusEl.textContent = 'Error uploading file: ' + msg;
+            console.error('Dropzone error details:', { file, errorMessage, xhr });
+        });
+
+            if (uploadAnotherBtn) {
+            uploadAnotherBtn.addEventListener('click', function () {
+            if (statusEl) statusEl.textContent = '';
+
+            // Only show if all required selections are still set
+            updateUI();
+
+            if (dzMessage) {
+            dzMessage.textContent =
+            'Please drop photos here that you would like the AI engine to learn. You can also click to browse for files.';
+        }
+
+            uploadAnotherBtn.classList.add('hidden');
+        });
+        }
+        }
+        });
+        });
     </script>
+
+
 
     <script>
         function openMetaModal(photoId) {

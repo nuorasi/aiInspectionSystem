@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Http;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver; // or Imagick\Driver if you prefer
 
+use Illuminate\Validation\Rule;
+
 class PhotoUploadControllerForTrain extends Controller
 {
 //    public function store(Request $request): JsonResponse
@@ -98,6 +100,17 @@ class PhotoUploadControllerForTrain extends Controller
     public function store(Request $request): JsonResponse
     {
 
+        $validated = $request->validate([
+            'installationStatus' => ['required', 'in:Complete,Incomplete'],
+            'product_id' => ['required', 'exists:products,id'],
+            'product_size_id' => [
+                'required',
+                Rule::exists('product_size', 'id')->where(function ($q) use ($request) {
+                    $q->where('productId', $request->input('product_id'));
+                }),
+            ],
+            'file' => ['required', 'image', 'max:204800'], // adjust as you like
+        ]);
         Log::info('in PhotoUploadControllerForTrain store ident 2342432432 ');
         try {
             $request->validate([
