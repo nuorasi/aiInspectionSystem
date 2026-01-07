@@ -99,7 +99,7 @@ class PhotoUploadControllerForTrain extends Controller
 
     public function store(Request $request): JsonResponse
     {
-
+        Log::info('in PhotoUploadControllerForTrain store ident 31415 request->', (array)print_r($request, true));
         $validated = $request->validate([
             'installationStatus' => ['required', 'in:Complete,Incomplete'],
             'product_id' => ['required', 'exists:products,id'],
