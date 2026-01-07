@@ -549,7 +549,7 @@
 
                 setTimeout(() => {
                     window.location.reload();
-                }, 800);
+                }, 8000);
             });
 
             dz.on("error", function (file, errorMessage, xhr) {
