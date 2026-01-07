@@ -57,9 +57,9 @@
                                 class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900"
                                 disabled
                             >
-                                <option value="">Select product</option>
+                                <option value="">Select size</option>
                                 @foreach ($productSizes as $p)
-                                    <option value="{{ $p->id }}">{{ $p->name }}</option>
+                                    <option value="{{ $p->id }}">{{ $p->size }}</option>
                                 @endforeach
                             </select>
                         </div>
