@@ -123,9 +123,9 @@
 
                             setSizeLoading();
 
-                            fetch(`/products/${productId}/sizes`)
-                                .then(res => res.json())
-                                .then(...)
+                            // fetch(`/products/${productId}/sizes`)
+                            //     .then(res => res.json())
+                            //     .then(...)
                         });
 
                     });
