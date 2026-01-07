@@ -81,6 +81,8 @@
                             <input type="hidden" name="product_id" id="dz-product_id">
                             <input type="hidden" name="product_size_id" id="dz-product_size_id">
 
+
+
                             <div class="dz-message">
                                 Please drop photos here that you would like the AI engine to learn.
                                 You can also click to browse for files.
