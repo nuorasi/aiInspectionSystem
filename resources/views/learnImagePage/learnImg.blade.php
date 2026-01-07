@@ -458,14 +458,8 @@
         Dropzone.autoDiscover = false;
 
         document.addEventListener('DOMContentLoaded', function () {
-            console.log('DOMContentLoaded 1')
             const dropzoneEl = document.getElementById('learn-dropzone');
-            console.log('DOMContentLoaded 2')
             if (!dropzoneEl) return;
-            console.log('DOMContentLoaded 3')
-
-         //   if (dropzoneEl.dropzone) return;
-            console.log('DOMContentLoaded 4')
 
             const spinner = document.getElementById('upload-spinner');
             const statusEl = document.getElementById('upload-status');
@@ -486,125 +480,109 @@
             function hideDropzone() {
                 if (!dropzoneWrapper) return;
                 dropzoneWrapper.classList.add('opacity-0', 'pointer-events-none');
-                setTimeout(() => {
-                    dropzoneWrapper.classList.add('hidden');
-                }, 300);
+                setTimeout(() => dropzoneWrapper.classList.add('hidden'), 300);
             }
 
-            const dz = new Dropzone(dropzoneEl, {
-                paramName: "file",
-                maxFilesize: 200,
-                acceptedFiles: "image/*",
-                headers: {
-                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.content || "{{ csrf_token() }}"
-                },
-
-                accept: function (file, done) {
-                    if (!allSelected()) {
-                        done("Please select installation status, product, and product size before uploading.");
-                        return;
+            // Reuse existing instance if already attached, otherwise create it.
+            let dz = dropzoneEl.dropzone;
+            if (!dz) {
+                dz = new Dropzone(dropzoneEl, {
+                    paramName: "file",
+                    maxFilesize: 200,
+                    acceptedFiles: "image/*",
+                    headers: {
+                        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.content || "{{ csrf_token() }}"
+                    },
+                    accept: function (file, done) {
+                        if (!allSelected()) {
+                            done("Please select installation status, product, and product size before uploading.");
+                            return;
+                        }
+                        done();
                     }
-                    done();
-                },
+                });
+            }
 
-                init: function () {
-                    // this.on("sending", function (file, xhr, formData) {
-                    //     if (!allSelected()) {
-                    //         this.removeFile(file);
-                    //         if (statusEl) statusEl.textContent = 'Please select installation status, product, and product size before uploading.';
-                    //         return;
-                    //     }
-                    //
-                    //     formData.append("installationStatus", installEl.value);
-                    //     formData.append("product_id", productEl.value);
-                    //     formData.append("product_size_id", sizeEl.value);
-                    //
-                    //     if (spinner) spinner.classList.remove('hidden');
-                    //     if (statusEl) statusEl.textContent = 'Uploading file...';
-                    // });
-                    this.on("sending", function (file, xhr, formData) {
-                        formData.set("installationStatus", document.getElementById('installation_status')?.value || '');
-                        formData.set("product_id", document.getElementById('product_id')?.value || '');
-                        formData.set("product_size_id", document.getElementById('product_size_id')?.value || '');
-                    });
+            // Prevent binding handlers multiple times
+            if (dz.__learnImgBound) return;
+            dz.__learnImgBound = true;
 
-                    this.on("success", function (file, response) {
-                        this.removeFile(file);
-                        if (spinner) spinner.classList.add('hidden');
+            dz.on("sending", function (file, xhr, formData) {
+                formData.set("installationStatus", document.getElementById('installation_status')?.value || '');
+                formData.set("product_id", document.getElementById('product_id')?.value || '');
+                formData.set("product_size_id", document.getElementById('product_size_id')?.value || '');
 
-                        const bytes = file.size;
-                        const sizeText = bytes > 1024 * 1024
-                            ? (bytes / (1024 * 1024)).toFixed(2) + ' MB'
-                            : (bytes / 1024).toFixed(2) + ' KB';
-
-                        const fileDate = new Date(file.lastModified || Date.now());
-                        const dateText = fileDate.toLocaleString();
-
-                        if (statusEl) {
-                            statusEl.textContent = 'File was loaded successfully. Size: ' + sizeText + '. Date: ' + dateText + '.';
-                        }
-
-                        let payload = response;
-                        if (typeof response === 'string') {
-                            try { payload = JSON.parse(response); } catch (e) {}
-                        }
-
-                        const imageUrl =
-                            payload?.url ||
-                            payload?.urls?.scaled ||
-                            payload?.urls?.original ||
-                            payload?.urls?.thumb ||
-                            null;
-
-                        if (imageEl && imageUrl) {
-                            imageEl.src = imageUrl;
-                            if (imageWrapper) imageWrapper.classList.remove('hidden');
-                        }
-
-                        if (dzMessage) {
-                            dzMessage.textContent = 'Upload saved. Resetting page and updating grid... ';
-                        }
-
-                        hideDropzone();
-                        if (uploadAnotherBtn) uploadAnotherBtn.classList.remove('hidden');
-
-                        const photoId = payload?.photo?.id ?? null;
-                        if (photoId && typeof openMetaModal === 'function') {
-                            openMetaModal(photoId);
-                        }
-                        console.log('reloading page')
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 800);
-                    });
-
-                    this.on("error", function (file, errorMessage, xhr) {
-                        if (spinner) spinner.classList.add('hidden');
-
-                        let msg = 'Error uploading file.';
-                        if (typeof errorMessage === 'string') msg = errorMessage;
-
-                        if (statusEl) statusEl.textContent = 'Error uploading file: ' + msg;
-                        console.error('Dropzone error details:', { file, errorMessage, xhr });
-                    });
-
-                    if (uploadAnotherBtn) {
-                        uploadAnotherBtn.addEventListener('click', function () {
-                            if (statusEl) statusEl.textContent = '';
-
-                            if (dzMessage) {
-                                dzMessage.textContent =
-                                    'Please drop photos here that you would like the AI engine to learn. You can also click to browse for files.';
-                            }
-
-                            uploadAnotherBtn.classList.add('hidden');
-                            // Do not force-show dropzone here. Dropdown controller decides.
-                        });
-                    }
-                }
+                if (spinner) spinner.classList.remove('hidden');
+                if (statusEl) statusEl.textContent = 'Uploading file...';
             });
+
+            dz.on("success", function (file, response) {
+                dz.removeFile(file);
+                if (spinner) spinner.classList.add('hidden');
+
+                if (dzMessage) dzMessage.textContent = 'Upload saved. Resetting page and updating grid...';
+
+                let payload = response;
+                if (typeof response === 'string') {
+                    try { payload = JSON.parse(response); } catch (e) {}
+                }
+
+                const imageUrl =
+                    payload?.url ||
+                    payload?.urls?.scaled ||
+                    payload?.urls?.original ||
+                    payload?.urls?.thumb ||
+                    null;
+
+                if (imageEl && imageUrl) {
+                    imageEl.src = imageUrl;
+                    if (imageWrapper) imageWrapper.classList.remove('hidden');
+                }
+
+                hideDropzone();
+                if (uploadAnotherBtn) uploadAnotherBtn.classList.remove('hidden');
+
+                const photoId = payload?.photo?.id ?? null;
+                if (photoId && typeof openMetaModal === 'function') {
+                    openMetaModal(photoId);
+                }
+
+                setTimeout(() => {
+                    window.location.reload();
+                }, 800);
+            });
+
+            dz.on("error", function (file, errorMessage, xhr) {
+                if (spinner) spinner.classList.add('hidden');
+
+                let msg = 'Error uploading file.';
+                if (xhr && xhr.responseText) {
+                    try {
+                        const res = JSON.parse(xhr.responseText);
+                        if (res.errors) msg = Object.values(res.errors).flat().join(' ');
+                        else if (res.message) msg = res.message;
+                    } catch (e) {}
+                } else if (typeof errorMessage === 'string') {
+                    msg = errorMessage;
+                }
+
+                if (statusEl) statusEl.textContent = 'Error uploading file: ' + msg;
+                console.error('Dropzone error details:', { file, errorMessage, xhr });
+            });
+
+            if (uploadAnotherBtn) {
+                uploadAnotherBtn.addEventListener('click', function () {
+                    if (statusEl) statusEl.textContent = '';
+                    if (dzMessage) {
+                        dzMessage.textContent =
+                            'Please drop photos here that you would like the AI engine to learn. You can also click to browse for files.';
+                    }
+                    uploadAnotherBtn.classList.add('hidden');
+                }, { once: true });
+            }
         });
     </script>
+
 
     <script>
         function openMetaModal(photoId) {
