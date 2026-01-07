@@ -68,6 +68,54 @@
                         Select installation status, product, and product size to enable uploads.
                     </p>
                 </div>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const installEl = document.getElementById('installation_status');
+                        const productEl = document.getElementById('product_id');
+                        const sizeEl = document.getElementById('product_size_id');
+                        const dropzoneWrapper = document.getElementById('dropzone-wrapper');
+
+                        if (!installEl || !productEl || !sizeEl || !dropzoneWrapper) return;
+
+                        function allSelected() {
+                            return (
+                                installEl.value &&
+                                productEl.value &&
+                                sizeEl.value
+                            );
+                        }
+
+                        function showDropzone() {
+                            dropzoneWrapper.classList.remove('hidden');
+                            setTimeout(() => {
+                                dropzoneWrapper.classList.remove('opacity-0', 'pointer-events-none');
+                            }, 10);
+                        }
+
+                        function hideDropzone() {
+                            dropzoneWrapper.classList.add('opacity-0', 'pointer-events-none');
+                            setTimeout(() => {
+                                dropzoneWrapper.classList.add('hidden');
+                            }, 300);
+                        }
+
+                        function updateDropzoneVisibility() {
+                            if (allSelected()) {
+                                showDropzone();
+                            } else {
+                                hideDropzone();
+                            }
+                        }
+
+                        // Watch all three dropdowns
+                        installEl.addEventListener('change', updateDropzoneVisibility);
+                        productEl.addEventListener('change', updateDropzoneVisibility);
+                        sizeEl.addEventListener('change', updateDropzoneVisibility);
+
+                        // Initial state
+                        updateDropzoneVisibility();
+                    });
+                </script>
 
                 <script>
                     document.addEventListener('DOMContentLoaded', function () {
