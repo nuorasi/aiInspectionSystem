@@ -141,9 +141,7 @@
                                     <th class="px-3 py-2 border">Image</th>
                                     <th class="px-3 py-2 border">Product</th>
                                     <th class="px-3 py-2 border">Size</th>
-                                    <th class="px-3 py-2 border">Type</th>
                                     <th class="px-3 py-2 border">Installation Status</th>
-                                    <th class="px-3 py-2 border">Confidence</th>
                                     <th class="px-3 py-2 border">Created</th>
                                     <th class="px-3 py-2 border">Updated</th>
                                 </tr>
@@ -197,9 +195,7 @@
 
                                         <td class="px-3 py-2 border">{{ $photo->product_name ?? $photo->product }}</td>
                                         <td class="px-3 py-2 border">{{ $photo->product_size ?? $photo->size }}</td>
-                                        <td class="px-3 py-2 border">{{ $photo->type }}</td>
                                         <td class="px-3 py-2 border">{{ $photo->installationStatus }}</td>
-                                        <td class="px-3 py-2 border">{{ $photo->confidence }}</td>
                                         <td class="px-3 py-2 border">{{ $photo->created_at }}</td>
                                         <td class="px-3 py-2 border">{{ $photo->updated_at }}</td>
                                     </tr>
