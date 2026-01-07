@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Http;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver; // or Imagick\Driver if you prefer
 
-class PhotoUploadController extends Controller
+class PhotoUploadControllerForAnalyze extends Controller
 {
 //    public function store(Request $request): JsonResponse
 //    {
@@ -98,7 +98,7 @@ class PhotoUploadController extends Controller
     public function store(Request $request): JsonResponse
     {
 
-        Log::info('in PhotoUploadController store ident 2342432432 ');
+        Log::info('in PhotoUploadControllerForTrain store ident 2342432432 ');
         try {
             $request->validate([
                 'file' => 'required|mimes:jpg,jpeg,png,gif,webp|max:204800', // 200 MB
@@ -215,7 +215,7 @@ class PhotoUploadController extends Controller
         ]);
 // Call Predict API using the scaled image (or original)
         $predict = null;
-        Log::info('in PhotoUploadController store ident 32323 calling TensorFlow Predict =>> ');
+        Log::info('in PhotoUploadControllerForTrain store ident 32323 calling TensorFlow Predict =>> ');
 
         try {
             $apiBase = rtrim(config('services.predict.base_url'), '/');
@@ -237,11 +237,11 @@ class PhotoUploadController extends Controller
                     'body' => $predictResponse->body(),
                 ]);
             } else {
-                Log::info('in PhotoUploadController store ident qq   TensorFlow Predict =>> SUCCESS');
+                Log::info('in PhotoUploadControllerForTrain store ident qq   TensorFlow Predict =>> SUCCESS');
 
                 $predict = $predictResponse->json();
                 Log::info(
-                    'in PhotoUploadController store ident qq   TensorFlow Predict =>> response data: ' . json_encode($predict, JSON_PRETTY_PRINT)
+                    'in PhotoUploadControllerForTrain store ident qq   TensorFlow Predict =>> response data: ' . json_encode($predict, JSON_PRETTY_PRINT)
                 );
 
                 // Optional: store prediction in DB (add columns first if you want)
@@ -256,7 +256,7 @@ class PhotoUploadController extends Controller
                 'error' => $e->getMessage(),
             ]);
         }
-        Log::info('in PhotoUploadController store ident qq   TensorFlow Predict =>> RESPONSE');
+        Log::info('in PhotoUploadControllerForTrain store ident qq   TensorFlow Predict =>> RESPONSE');
 
 //        return response()->json([
 //            'success' => true,

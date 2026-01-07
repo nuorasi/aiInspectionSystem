@@ -1,5 +1,5 @@
 <?php
-use App\Http\Controllers\PhotoUploadController;
+use App\Http\Controllers\PhotoUploadControllerForTrain;
 use App\Http\Controllers\AnalyzeImageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewYourImagesController;
@@ -33,7 +33,7 @@ Route::get('/reviewYourImagesPage', [ReviewYourImagesController::class, 'reviewI
 Route::post('/predict-upload', [PredictController::class, 'upload'])->name('predict.upload');
 
 
-Route::post('/upload-photo', [PhotoUploadController::class, 'store'])
+Route::post('/upload-photo', [PhotoUploadControllerForTrain::class, 'store'])
     ->name('photos.upload');
 
 Route::get('/photos/upload', function () {
@@ -43,6 +43,6 @@ Route::get('/photos/upload', function () {
 
 
 
-Route::post('/photos', [PhotoUploadController::class, 'store'])->name('photos.store');
+Route::post('/photos', [PhotoUploadControllerForTrain::class, 'store'])->name('photos.store');
 
 require __DIR__.'/auth.php';
