@@ -209,6 +209,9 @@ class PhotoUploadControllerForTrain extends Controller
             $thumbPath,
             (string) $thumb->encodeByExtension($outExt, quality: 80)
         );
+        log::info('in PhotoUploadControllerForTrain store ident 31415 request->installationStatus = ' . $request->installationStatus);
+        log::info('in PhotoUploadControllerForTrain store ident 31415 request->product_id = ' . $request->product_id);
+        log::info('in PhotoUploadControllerForTrain store ident 31415 request->product_size_id = ' . $request->product_size_id);
 
         // Save record in DB
         // Adjust columns to match your schema (add these columns if you want to store all paths)
@@ -229,6 +232,10 @@ class PhotoUploadControllerForTrain extends Controller
             // If your model currently expects `image` / `path`, pick one as the “default”
             'image'       => $scaledPath,
             'path'        => $scaledPath,
+
+            'installationStatus' =>$request->installationStatus,
+            'product'=> $request->product_id,
+            'size' => $request->product_size_id,
         ]);
 // Call Predict API using the scaled image (or original)
 //        $predict = null;
