@@ -458,10 +458,14 @@
         Dropzone.autoDiscover = false;
 
         document.addEventListener('DOMContentLoaded', function () {
+            console.log('DOMContentLoaded 1')
             const dropzoneEl = document.getElementById('learn-dropzone');
+            console.log('DOMContentLoaded 2')
             if (!dropzoneEl) return;
+            console.log('DOMContentLoaded 3')
 
             if (dropzoneEl.dropzone) return;
+            console.log('DOMContentLoaded 4')
 
             const spinner = document.getElementById('upload-spinner');
             const statusEl = document.getElementById('upload-status');
