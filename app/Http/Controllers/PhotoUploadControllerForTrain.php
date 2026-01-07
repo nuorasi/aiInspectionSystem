@@ -231,48 +231,48 @@ class PhotoUploadControllerForTrain extends Controller
             'path'        => $scaledPath,
         ]);
 // Call Predict API using the scaled image (or original)
-        $predict = null;
-        Log::info('in PhotoUploadControllerForTrain store ident 32323 calling TensorFlow Predict =>> ');
-
-        try {
-            $apiBase = rtrim(config('services.predict.base_url'), '/');
-            $predictUrl = $apiBase . '/predict';
-
-            $scaledAbsolutePath = Storage::disk($disk)->path($scaledPath);
-
-            $predictResponse = Http::timeout(90)
-                ->attach(
-                    'file',
-                    file_get_contents($scaledAbsolutePath),
-                    basename($scaledAbsolutePath)
-                )
-                ->post($predictUrl);
-
-            if (! $predictResponse->successful()) {
-                Log::warning('Predict API failed', [
-                    'status' => $predictResponse->status(),
-                    'body' => $predictResponse->body(),
-                ]);
-            } else {
-                Log::info('in PhotoUploadControllerForTrain store ident qq   TensorFlow Predict =>> SUCCESS');
-
-                $predict = $predictResponse->json();
-                Log::info(
-                    'in PhotoUploadControllerForTrain store ident qq   TensorFlow Predict =>> response data: ' . json_encode($predict, JSON_PRETTY_PRINT)
-                );
-
-                // Optional: store prediction in DB (add columns first if you want)
-                // $photo->update([
-                //     'pred_label' => $predict['label'] ?? null,
-                //     'pred_confidence' => $predict['confidence'] ?? null,
-                //     'pred_payload' => $predict, // json column recommended
-                // ]);
-            }
-        } catch (\Throwable $e) {
-            Log::error('Predict API exception', [
-                'error' => $e->getMessage(),
-            ]);
-        }
+//        $predict = null;
+//        Log::info('in PhotoUploadControllerForTrain store ident 32323 calling TensorFlow Predict =>> ');
+//
+//        try {
+//            $apiBase = rtrim(config('services.predict.base_url'), '/');
+//            $predictUrl = $apiBase . '/predict';
+//
+//            $scaledAbsolutePath = Storage::disk($disk)->path($scaledPath);
+//
+//            $predictResponse = Http::timeout(90)
+//                ->attach(
+//                    'file',
+//                    file_get_contents($scaledAbsolutePath),
+//                    basename($scaledAbsolutePath)
+//                )
+//                ->post($predictUrl);
+//
+//            if (! $predictResponse->successful()) {
+//                Log::warning('Predict API failed', [
+//                    'status' => $predictResponse->status(),
+//                    'body' => $predictResponse->body(),
+//                ]);
+//            } else {
+//                Log::info('in PhotoUploadControllerForTrain store ident qq   TensorFlow Predict =>> SUCCESS');
+//
+//                $predict = $predictResponse->json();
+//                Log::info(
+//                    'in PhotoUploadControllerForTrain store ident qq   TensorFlow Predict =>> response data: ' . json_encode($predict, JSON_PRETTY_PRINT)
+//                );
+//
+//                // Optional: store prediction in DB (add columns first if you want)
+//                // $photo->update([
+//                //     'pred_label' => $predict['label'] ?? null,
+//                //     'pred_confidence' => $predict['confidence'] ?? null,
+//                //     'pred_payload' => $predict, // json column recommended
+//                // ]);
+//            }
+//        } catch (\Throwable $e) {
+//            Log::error('Predict API exception', [
+//                'error' => $e->getMessage(),
+//            ]);
+//        }
         Log::info('in PhotoUploadControllerForTrain store ident qq   TensorFlow Predict =>> RESPONSE');
 
 //        return response()->json([
