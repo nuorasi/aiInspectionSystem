@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Photo;
+use App\Models\Products;
+use App\Models\Product_sizes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -17,6 +19,14 @@ class LearnImageController extends Controller
         // return $this->apiResponse(200, 'Success', ['oAuthTestResponse' => $oneRosterBearerToken[0]->tokenValue]);
         $photos = Photo::orderBy('id', 'desc')->get(); // or paginate()
 
-        return view('learnImagePage.learnImg', compact('photos'));
+        $products = Products::select('id', 'name')->orderBy('name')->get();
+
+        $productSizes = Product_sizes::select('id', 'productId', 'size')
+            ->orderBy('size')
+            ->get();
+
+//        return view('your-blade-view', compact('products', 'productSizes'));
+
+        return view('learnImagePage.learnImg', compact('photos','products','productSizes'));
     }
 }
