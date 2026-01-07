@@ -9,195 +9,68 @@
         <div class="w-full mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg">
 
-            <div class="p-6 text-gray-900 dark:text-gray-100">
+                <div class="p-6 text-gray-900 dark:text-gray-100">
                     <h3 class="text-lg font-semibold mb-4">
                         Upload photos for the AI engine
                     </h3>
-                {{-- Required selections before upload --}}
-                <div class="mb-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {{-- Installation Status --}}
-                        <div>
-                            <label for="installation_status" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                                Installation Status
-                            </label>
-                            <select
-                                id="installation_status"
-                                class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900"
-                            >
-                                <option value="">Select status</option>
-                                <option value="Complete">Complete</option>
-                                <option value="Incomplete">Incomplete</option>
-                            </select>
+
+                    {{-- Required selections before upload --}}
+                    <div class="mb-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {{-- Installation Status --}}
+                            <div>
+                                <label for="installation_status" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                                    Installation Status
+                                </label>
+                                <select
+                                    id="installation_status"
+                                    class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900"
+                                >
+                                    <option value="">Select status</option>
+                                    <option value="Complete">Complete</option>
+                                    <option value="Incomplete">Incomplete</option>
+                                </select>
+                            </div>
+
+                            {{-- Product --}}
+                            <div>
+                                <label for="product_id" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                                    Product
+                                </label>
+                                <select
+                                    id="product_id"
+                                    class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900"
+                                >
+                                    <option value="">Select product</option>
+                                    @foreach ($products as $p)
+                                        <option value="{{ $p->id }}">{{ $p->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            {{-- Product Size (loads after product selection) --}}
+                            <div>
+                                <label for="product_size_id" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                                    Product Size
+                                </label>
+                                <select
+                                    id="product_size_id"
+                                    class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900"
+                                    disabled
+                                >
+                                    <option value="">Select size</option>
+                                </select>
+                            </div>
                         </div>
 
-                        {{-- Product --}}
-                        <div>
-                            <label for="product_id" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                                Product
-                            </label>
-                            <select
-                                id="product_id"
-                                class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900"
-                            >
-                                <option value="">Select product</option>
-                                @foreach ($products as $p)
-                                    <option value="{{ $p->id }}">{{ $p->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        {{-- Product Size (filtered by product) --}}
-                        {{-- Product Size (loads after product selection) --}}
-                        <div>
-                            <label for="product_size_id" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                                Product Size
-                            </label>
-                            <select
-                                id="product_size_id"
-                                class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900"
-                                disabled
-                            >
-                                <option value="">Select size</option>
-                            </select>
-                        </div>
-
+                        <p id="selection-hint" class="mt-3 text-sm text-gray-600 dark:text-gray-300">
+                            Select installation status, product, and product size to enable uploads.
+                        </p>
                     </div>
 
-                    <p id="selection-hint" class="mt-3 text-sm text-gray-600 dark:text-gray-300">
-                        Select installation status, product, and product size to enable uploads.
-                    </p>
-                </div>
-                <script>
-                    document.addEventListener('DOMContentLoaded', function () {
-                        const installEl = document.getElementById('installation_status');
-                        const productEl = document.getElementById('product_id');
-                        const sizeEl = document.getElementById('product_size_id');
-                        const dropzoneWrapper = document.getElementById('dropzone-wrapper');
-
-                        if (!installEl || !productEl || !sizeEl || !dropzoneWrapper) return;
-
-                        function allSelected() {
-                            return (
-                                installEl.value &&
-                                productEl.value &&
-                                sizeEl.value
-                            );
-                        }
-
-                        function showDropzone() {
-                            dropzoneWrapper.classList.remove('hidden');
-                            setTimeout(() => {
-                                dropzoneWrapper.classList.remove('opacity-0', 'pointer-events-none');
-                            }, 10);
-                        }
-
-                        function hideDropzone() {
-                            dropzoneWrapper.classList.add('opacity-0', 'pointer-events-none');
-                            setTimeout(() => {
-                                dropzoneWrapper.classList.add('hidden');
-                            }, 300);
-                        }
-
-                        function updateDropzoneVisibility() {
-                            if (allSelected()) {
-                                showDropzone();
-                            } else {
-                                hideDropzone();
-                            }
-                        }
-
-                        // Watch all three dropdowns
-                        installEl.addEventListener('change', updateDropzoneVisibility);
-                        productEl.addEventListener('change', updateDropzoneVisibility);
-                        sizeEl.addEventListener('change', updateDropzoneVisibility);
-
-                        // Initial state
-                        updateDropzoneVisibility();
-                        // productEl.addEventListener('change', function () {
-                        //     const productId = this.value;
-                        //     resetSizes();
-                        //     updateDropzoneVisibility(); // 👈 important
-                        //
-                        //     if (!productId) return;
-                        //
-                        //     setSizeLoading();
-                        //
-                        //     // fetch(`/products/${productId}/sizes`)
-                        //     //     .then(res => res.json())
-                        //     //     .then(...)
-                        // });
-
-                    });
-                </script>
-
-                <script>
-                    document.addEventListener('DOMContentLoaded', function () {
-                        const productEl = document.getElementById('product_id');
-                        const sizeEl = document.getElementById('product_size_id');
-
-                        if (!productEl || !sizeEl) return;
-
-                        function setSizeLoading() {
-                            sizeEl.disabled = true;
-                            sizeEl.innerHTML = '<option value="">Loading sizes...</option>';
-                        }
-
-                        function resetSizes() {
-                            sizeEl.disabled = true;
-                            sizeEl.innerHTML = '<option value="">Select size</option>';
-                        }
-
-                        productEl.addEventListener('change', function () {
-                            const productId = this.value;
-                            resetSizes();
-
-                            if (!productId) return;
-
-                            setSizeLoading();
-
-                            fetch("{{ url('/products') }}/" + productId + "/sizes", {
-                                headers: { 'Accept': 'application/json' }
-                            })
-                                .then(res => {
-                                    if (!res.ok) throw new Error('HTTP ' + res.status);
-                                    return res.json();
-                                })
-                                .then(sizes => {
-                                    sizeEl.innerHTML = '<option value="">Select size</option>';
-
-                                    if (!Array.isArray(sizes) || sizes.length === 0) {
-                                        sizeEl.innerHTML = '<option value="">No sizes found</option>';
-                                        sizeEl.disabled = true;
-                                        return;
-                                    }
-
-                                    sizes.forEach(s => {
-                                        const opt = document.createElement('option');
-                                        opt.value = s.id;
-                                        opt.textContent = s.size;
-                                        sizeEl.appendChild(opt);
-                                    });
-
-                                    sizeEl.disabled = false;
-                                })
-                                .catch(err => {
-                                    console.error('Failed to load sizes', err);
-                                    sizeEl.innerHTML = '<option value="">Error loading sizes</option>';
-                                    sizeEl.disabled = true;
-                                });
-                        });
-                    });
-                </script>
-                {{-- Provide sizes to JS for filtering --}}
-                <script>
-                    window.__PRODUCT_SIZES__ = @json($productSizes);
-                </script>
-
                     {{-- Dropzone wrapper for fade in / out --}}
-                <div id="dropzone-wrapper" class="relative transition-opacity duration-500 hidden opacity-0 pointer-events-none">
-
-                <form
+                    <div id="dropzone-wrapper" class="relative transition-opacity duration-500 hidden opacity-0 pointer-events-none">
+                        <form
                             action="{{ route('photos.upload') }}"
                             method="post"
                             class="dropzone"
@@ -242,105 +115,101 @@
                     >
                         Upload another file
                     </button>
-                {{-- Photos Table --}}
-                <div class="mt-10">
-                    <h3 class="text-lg font-semibold mb-4">Uploaded Photos</h3>
 
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full text-sm text-left border border-gray-600">
-                            <thead class="bg-gray-700 text-white">
-                            <tr>
-                                <th class="px-3 py-2 border">ID</th>
-                                <th class="px-3 py-2 border">Disk</th>
-                                <th class="px-3 py-2 border">Path</th>
-                                <th class="px-3 py-2 border">File Name</th>
-                                <th class="px-3 py-2 border">Mime</th>
-                                <th class="px-3 py-2 border">Size (bytes)</th>
-                                <th class="px-3 py-2 border">Width</th>
-                                <th class="px-3 py-2 border">Height</th>
+                    {{-- Photos Table --}}
+                    <div class="mt-10">
+                        <h3 class="text-lg font-semibold mb-4">Uploaded Photos</h3>
 
-                                <th class="px-3 py-2 border">EXIF</th>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-sm text-left border border-gray-600">
+                                <thead class="bg-gray-700 text-white">
+                                <tr>
+                                    <th class="px-3 py-2 border">ID</th>
+                                    <th class="px-3 py-2 border">Disk</th>
+                                    <th class="px-3 py-2 border">Path</th>
+                                    <th class="px-3 py-2 border">File Name</th>
+                                    <th class="px-3 py-2 border">Mime</th>
+                                    <th class="px-3 py-2 border">Size (bytes)</th>
+                                    <th class="px-3 py-2 border">Width</th>
+                                    <th class="px-3 py-2 border">Height</th>
+                                    <th class="px-3 py-2 border">EXIF</th>
+                                    <th class="px-3 py-2 border">Image</th>
+                                    <th class="px-3 py-2 border">Product</th>
+                                    <th class="px-3 py-2 border">Size</th>
+                                    <th class="px-3 py-2 border">Type</th>
+                                    <th class="px-3 py-2 border">Installation Status</th>
+                                    <th class="px-3 py-2 border">Confidence</th>
+                                    <th class="px-3 py-2 border">Created</th>
+                                    <th class="px-3 py-2 border">Updated</th>
+                                </tr>
+                                </thead>
 
-                                <th class="px-3 py-2 border">Image</th>
-                                <th class="px-3 py-2 border">Product</th>
-                                <th class="px-3 py-2 border">Size</th>
-                                <th class="px-3 py-2 border">Type</th>
-                                <th class="px-3 py-2 border">Installation Status</th>
-                                <th class="px-3 py-2 border">Confidence</th>
-                                <th class="px-3 py-2 border">Created</th>
-                                <th class="px-3 py-2 border">Updated</th>
-                            </tr>
-                            </thead>
+                                <tbody class="text-gray-900 dark:text-gray-200">
+                                @foreach ($photos as $photo)
+                                    <tr class="border-t border-gray-600">
+                                        <td class="px-3 py-2 border">{{ $photo->id }}</td>
+                                        <td class="px-3 py-2 border">{{ $photo->disk }}</td>
+                                        <td class="px-3 py-2 border">{{ $photo->path }}</td>
+                                        <td class="px-3 py-2 border">{{ $photo->file_name }}</td>
+                                        <td class="px-3 py-2 border">{{ $photo->mime_type }}</td>
+                                        <td class="px-3 py-2 border">{{ $photo->size_bytes }}</td>
+                                        <td class="px-3 py-2 border">{{ $photo->width }}</td>
+                                        <td class="px-3 py-2 border">{{ $photo->height }}</td>
 
-                            <tbody class="text-gray-900 dark:text-gray-200">
-                            @foreach ($photos as $photo)
-                                <tr class="border-t border-gray-600">
-                                    <td class="px-3 py-2 border">{{ $photo->id }}</td>
-                                    <td class="px-3 py-2 border">{{ $photo->disk }}</td>
-                                    <td class="px-3 py-2 border">{{ $photo->path }}</td>
-                                    <td class="px-3 py-2 border">{{ $photo->file_name }}</td>
-                                    <td class="px-3 py-2 border">{{ $photo->mime_type }}</td>
-                                    <td class="px-3 py-2 border">{{ $photo->size_bytes }}</td>
-                                    <td class="px-3 py-2 border">{{ $photo->width }}</td>
-                                    <td class="px-3 py-2 border">{{ $photo->height }}</td>
-
-                                    {{-- EXIF column - starts hidden --}}
-                                    <td class="px-3 py-2 border max-w-[300px] overflow-x-auto">
-                                        <button
-                                            type="button"
-                                            class="mb-2 inline-flex items-center px-2 py-1 text-xs font-semibold border border-gray-500 rounded-md bg-gray-800 text-white hover:bg-gray-700 exif-toggle-btn"
-                                        >
-                                            <svg
-                                                class="w-4 h-4 mr-1"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                                stroke="currentColor"
+                                        {{-- EXIF column - starts hidden --}}
+                                        <td class="px-3 py-2 border max-w-[300px] overflow-x-auto">
+                                            <button
+                                                type="button"
+                                                class="mb-2 inline-flex items-center px-2 py-1 text-xs font-semibold border border-gray-500 rounded-md bg-gray-800 text-white hover:bg-gray-700 exif-toggle-btn"
                                             >
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                <circle cx="12" cy="12" r="3" />
-                                            </svg>
-                                            <span class="exif-toggle-label">Show</span>
-                                        </button>
+                                                <svg
+                                                    class="w-4 h-4 mr-1"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                    stroke="currentColor"
+                                                >
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                    <circle cx="12" cy="12" r="3" />
+                                                </svg>
+                                                <span class="exif-toggle-label">Show</span>
+                                            </button>
 
-                                        <pre class="whitespace-pre-wrap text-xs exif-content hidden">
+                                            <pre class="whitespace-pre-wrap text-xs exif-content hidden">
 {{ json_encode($photo->exif, JSON_PRETTY_PRINT) }}
     </pre>
-                                    </td>
+                                        </td>
 
+                                        {{-- Thumbnail column - always visible --}}
+                                        <td class="px-3 py-2 border">
+                                            <img
+                                                src="{{ Storage::disk($photo->disk)->url($photo->path_thumb) }}"
+                                                alt="Image"
+                                                class="w-20 h-auto rounded"
+                                            />
+                                        </td>
 
-
-                                    {{-- Thumbnail column - always visible --}}
-                                    <td class="px-3 py-2 border">
-                                        <img
-                                            src="{{ Storage::disk($photo->disk)->url($photo->path_thumb) }}"
-                                            alt="Image"
-                                            class="w-20 h-auto rounded"
-                                        />
-
-                                    </td>
-
-
-                                    <td class="px-3 py-2 border">{{ $photo->product }}</td>
-                                    <td class="px-3 py-2 border">{{ $photo->size }}</td>
-                                    <td class="px-3 py-2 border">{{ $photo->type }}</td>
-                                    <td class="px-3 py-2 border">{{ $photo->installationStatus }}</td>
-                                    <td class="px-3 py-2 border">{{ $photo->confidence }}</td>
-                                    <td class="px-3 py-2 border">{{ $photo->created_at }}</td>
-                                    <td class="px-3 py-2 border">{{ $photo->updated_at }}</td>
-                                </tr>
-                            @endforeach
-                            </tbody>
-                        </table>
+                                        <td class="px-3 py-2 border">{{ $photo->product }}</td>
+                                        <td class="px-3 py-2 border">{{ $photo->size }}</td>
+                                        <td class="px-3 py-2 border">{{ $photo->type }}</td>
+                                        <td class="px-3 py-2 border">{{ $photo->installationStatus }}</td>
+                                        <td class="px-3 py-2 border">{{ $photo->confidence }}</td>
+                                        <td class="px-3 py-2 border">{{ $photo->created_at }}</td>
+                                        <td class="px-3 py-2 border">{{ $photo->updated_at }}</td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
 
-            </div>
                 </div>
+            </div>
 
-            </div>
-            </div>
+        </div>
+    </div>
+
     {{-- Manual Metadata Modal --}}
     <div
         id="meta-modal"
@@ -443,9 +312,6 @@
         </div>
     </div>
 
-
-
-
     {{-- Dropzone CSS --}}
     <link
         rel="stylesheet"
@@ -455,12 +321,12 @@
     <style>
         /* Custom Dropzone styling integrated with Tailwind container */
         #learn-dropzone {
-            width: 90vw;              /* 90 percent of viewport width */
+            width: 90vw;
             max-width: 100%;
             margin: 0 auto;
-            border: 3px dashed #9ca3af;  /* gray-400 */
+            border: 3px dashed #9ca3af;
             border-radius: 0.75rem;
-            background: #f9fafb;         /* gray-50 */
+            background: #f9fafb;
             padding: 2.5rem 1.5rem;
             text-align: center;
             cursor: pointer;
@@ -468,22 +334,128 @@
 
         #learn-dropzone .dz-message {
             font-size: 1.1rem;
-            color: #4b5563; /* gray-700 */
+            color: #4b5563;
         }
     </style>
 
     {{-- Dropzone JS --}}
     <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
 
+    {{-- Dropdown controller: load sizes + show/hide dropzone --}}
     <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const installEl = document.getElementById('installation_status');
+            const productEl = document.getElementById('product_id');
+            const sizeEl = document.getElementById('product_size_id');
+            const dropzoneWrapper = document.getElementById('dropzone-wrapper');
+            const hintEl = document.getElementById('selection-hint');
 
-            Dropzone.autoDiscover = false;
+            if (!installEl || !productEl || !sizeEl || !dropzoneWrapper) return;
 
-            document.addEventListener('DOMContentLoaded', function () {
+            function allSelected() {
+                return Boolean(installEl.value && productEl.value && sizeEl.value);
+            }
+
+            function showDropzone() {
+                dropzoneWrapper.classList.remove('hidden');
+                requestAnimationFrame(() => {
+                    dropzoneWrapper.classList.remove('opacity-0', 'pointer-events-none');
+                });
+            }
+
+            function hideDropzone() {
+                dropzoneWrapper.classList.add('opacity-0', 'pointer-events-none');
+                setTimeout(() => {
+                    dropzoneWrapper.classList.add('hidden');
+                }, 300);
+            }
+
+            function updateDropzoneVisibility() {
+                if (allSelected()) {
+                    showDropzone();
+                    if (hintEl) hintEl.textContent = 'Ready to upload.';
+                } else {
+                    hideDropzone();
+                    if (hintEl) hintEl.textContent = 'Select installation status, product, and product size to enable uploads.';
+                }
+            }
+
+            function setSizeLoading() {
+                sizeEl.disabled = true;
+                sizeEl.innerHTML = '<option value="">Loading sizes...</option>';
+            }
+
+            function resetSizes() {
+                sizeEl.disabled = true;
+                sizeEl.innerHTML = '<option value="">Select size</option>';
+                sizeEl.value = '';
+            }
+
+            async function loadSizes(productId) {
+                resetSizes();
+                updateDropzoneVisibility();
+
+                if (!productId) return;
+
+                setSizeLoading();
+
+                try {
+                    const res = await fetch("{{ url('/products') }}/" + productId + "/sizes", {
+                        headers: { 'Accept': 'application/json' }
+                    });
+
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+
+                    const sizes = await res.json();
+
+                    sizeEl.innerHTML = '<option value="">Select size</option>';
+
+                    if (!Array.isArray(sizes) || sizes.length === 0) {
+                        sizeEl.innerHTML = '<option value="">No sizes found</option>';
+                        sizeEl.disabled = true;
+                        updateDropzoneVisibility();
+                        return;
+                    }
+
+                    sizes.forEach(s => {
+                        const opt = document.createElement('option');
+                        opt.value = s.id;
+                        opt.textContent = s.size;
+                        sizeEl.appendChild(opt);
+                    });
+
+                    sizeEl.disabled = false;
+                    updateDropzoneVisibility();
+                } catch (err) {
+                    console.error('Failed to load sizes', err);
+                    sizeEl.innerHTML = '<option value="">Error loading sizes</option>';
+                    sizeEl.disabled = true;
+                    updateDropzoneVisibility();
+                }
+            }
+
+            installEl.addEventListener('change', updateDropzoneVisibility);
+
+            productEl.addEventListener('change', function () {
+                loadSizes(productEl.value);
+            });
+
+            sizeEl.addEventListener('change', updateDropzoneVisibility);
+
+            // Initial state
+            resetSizes();
+            updateDropzoneVisibility();
+        });
+    </script>
+
+    {{-- Dropzone init: append metadata + block uploads if not selected --}}
+    <script>
+        Dropzone.autoDiscover = false;
+
+        document.addEventListener('DOMContentLoaded', function () {
             const dropzoneEl = document.getElementById('learn-dropzone');
             if (!dropzoneEl) return;
 
-            // Guard: prevent "Dropzone already attached."
             if (dropzoneEl.dropzone) return;
 
             const spinner = document.getElementById('upload-spinner');
@@ -497,197 +469,124 @@
             const installEl = document.getElementById('installation_status');
             const productEl = document.getElementById('product_id');
             const sizeEl = document.getElementById('product_size_id');
-            const hintEl = document.getElementById('selection-hint');
-
-            const allSizes = Array.isArray(window.__PRODUCT_SIZES__) ? window.__PRODUCT_SIZES__ : [];
 
             function allSelected() {
-            return !!installEl?.value && !!productEl?.value && !!sizeEl?.value;
-        }
+                return Boolean(installEl?.value && productEl?.value && sizeEl?.value);
+            }
 
             function hideDropzone() {
-            if (!dropzoneWrapper) return;
-            dropzoneWrapper.classList.add('opacity-0', 'pointer-events-none');
-            setTimeout(function () {
-            dropzoneWrapper.classList.add('hidden');
-        }, 10);
-        }
-
-            function showDropzone() {
-            if (!dropzoneWrapper) return;
-            dropzoneWrapper.classList.remove('hidden');
-            setTimeout(function () {
-            dropzoneWrapper.classList.remove('opacity-0', 'pointer-events-none');
-        }, 10);
-        }
-
-            function resetSizes() {
-            if (!sizeEl) return;
-            sizeEl.innerHTML = '<option value="">Select size</option>';
-            sizeEl.value = '';
-            sizeEl.disabled = true;
-        }
-
-            function loadSizesForProduct(productId) {
-            resetSizes();
-            if (!sizeEl || !productId) return;
-
-            const sizes = allSizes.filter(s => String(s.productId) === String(productId));
-
-            sizes.forEach(function (s) {
-            const opt = document.createElement('option');
-            opt.value = s.id;
-            opt.textContent = s.size;
-            sizeEl.appendChild(opt);
-        });
-
-            sizeEl.disabled = sizes.length === 0;
-        }
-
-            function updateUI() {
-            if (allSelected()) {
-            showDropzone();
-            if (hintEl) hintEl.textContent = 'Ready to upload.';
-        } else {
-            hideDropzone();
-            if (hintEl) hintEl.textContent = 'Select installation status, product, and product size to enable uploads.';
-        }
-        }
-
-            // Wire dropdown events
-            if (productEl) {
-            productEl.addEventListener('change', function () {
-            loadSizesForProduct(productEl.value);
-            updateUI();
-        });
-        }
-
-            if (installEl) installEl.addEventListener('change', updateUI);
-            if (sizeEl) sizeEl.addEventListener('change', updateUI);
-
-            // Initial UI state
-            resetSizes();
-            updateUI();
+                if (!dropzoneWrapper) return;
+                dropzoneWrapper.classList.add('opacity-0', 'pointer-events-none');
+                setTimeout(() => {
+                    dropzoneWrapper.classList.add('hidden');
+                }, 300);
+            }
 
             const dz = new Dropzone(dropzoneEl, {
-            paramName: "file",
-            maxFilesize: 200,
-            acceptedFiles: "image/*",
-            headers: {
-            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.content || "{{ csrf_token() }}"
-        },
+                paramName: "file",
+                maxFilesize: 200,
+                acceptedFiles: "image/*",
+                headers: {
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.content || "{{ csrf_token() }}"
+                },
 
-            // Prevent upload if selections are not complete
-            accept: function (file, done) {
-            if (!allSelected()) {
-            done("Please select installation status, product, and product size before uploading.");
-            return;
-        }
-            done();
-        },
+                accept: function (file, done) {
+                    if (!allSelected()) {
+                        done("Please select installation status, product, and product size before uploading.");
+                        return;
+                    }
+                    done();
+                },
 
-            init: function () {
-            this.on("sending", function (file, xhr, formData) {
-            if (!allSelected()) {
-            this.removeFile(file);
-            if (statusEl) statusEl.textContent = 'Please select installation status, product, and product size before uploading.';
-            return;
-        }
+                init: function () {
+                    this.on("sending", function (file, xhr, formData) {
+                        if (!allSelected()) {
+                            this.removeFile(file);
+                            if (statusEl) statusEl.textContent = 'Please select installation status, product, and product size before uploading.';
+                            return;
+                        }
 
-            // Append metadata to upload request
-            formData.append("installationStatus", installEl.value);
-            formData.append("product_id", productEl.value);
-            formData.append("product_size_id", sizeEl.value);
+                        formData.append("installationStatus", installEl.value);
+                        formData.append("product_id", productEl.value);
+                        formData.append("product_size_id", sizeEl.value);
 
-            if (spinner) spinner.classList.remove('hidden');
-            if (statusEl) statusEl.textContent = 'Uploading file...';
-        });
+                        if (spinner) spinner.classList.remove('hidden');
+                        if (statusEl) statusEl.textContent = 'Uploading file...';
+                    });
 
-            this.on("success", function (file, response) {
-            console.log('Dropzone success response:', response);
+                    this.on("success", function (file, response) {
+                        this.removeFile(file);
+                        if (spinner) spinner.classList.add('hidden');
 
-            this.removeFile(file);
-            if (spinner) spinner.classList.add('hidden');
+                        const bytes = file.size;
+                        const sizeText = bytes > 1024 * 1024
+                            ? (bytes / (1024 * 1024)).toFixed(2) + ' MB'
+                            : (bytes / 1024).toFixed(2) + ' KB';
 
-            const bytes = file.size;
-            let sizeText;
-            if (bytes > 1024 * 1024) {
-            sizeText = (bytes / (1024 * 1024)).toFixed(2) + ' MB';
-        } else {
-            sizeText = (bytes / 1024).toFixed(2) + ' KB';
-        }
+                        const fileDate = new Date(file.lastModified || Date.now());
+                        const dateText = fileDate.toLocaleString();
 
-            const fileDate = new Date(file.lastModified || Date.now());
-            const dateText = fileDate.toLocaleString();
+                        if (statusEl) {
+                            statusEl.textContent = 'File was loaded successfully. Size: ' + sizeText + '. Date: ' + dateText + '.';
+                        }
 
-            if (statusEl) {
-            statusEl.textContent = 'File was loaded successfully. Size: ' + sizeText + '. Date: ' + dateText + '.';
-        }
+                        let payload = response;
+                        if (typeof response === 'string') {
+                            try { payload = JSON.parse(response); } catch (e) {}
+                        }
 
-            let payload = response;
-            if (typeof response === 'string') {
-            try { payload = JSON.parse(response); } catch (e) {}
-        }
+                        const imageUrl =
+                            payload?.url ||
+                            payload?.urls?.scaled ||
+                            payload?.urls?.original ||
+                            payload?.urls?.thumb ||
+                            null;
 
-            const imageUrl =
-            payload?.url ||
-            payload?.urls?.scaled ||
-            payload?.urls?.original ||
-            payload?.urls?.thumb ||
-            null;
+                        if (imageEl && imageUrl) {
+                            imageEl.src = imageUrl;
+                            if (imageWrapper) imageWrapper.classList.remove('hidden');
+                        }
 
-            if (imageEl && imageUrl) {
-            imageEl.src = imageUrl;
-            if (imageWrapper) imageWrapper.classList.remove('hidden');
-        }
+                        if (dzMessage) {
+                            dzMessage.textContent = 'File uploaded. Use "Upload another file" to add more images.';
+                        }
 
-            if (dzMessage) {
-            dzMessage.textContent =
-            'File uploaded. Use "Upload another file" to add more images.';
-        }
+                        hideDropzone();
+                        if (uploadAnotherBtn) uploadAnotherBtn.classList.remove('hidden');
 
-            // Hide dropzone after success, user can click Upload another file to show it again
-            hideDropzone();
+                        const photoId = payload?.photo?.id ?? null;
+                        if (photoId && typeof openMetaModal === 'function') {
+                            openMetaModal(photoId);
+                        }
+                    });
 
-            if (uploadAnotherBtn) uploadAnotherBtn.classList.remove('hidden');
+                    this.on("error", function (file, errorMessage, xhr) {
+                        if (spinner) spinner.classList.add('hidden');
 
-            const photoId = payload?.photo?.id ?? null;
-            if (photoId && typeof openMetaModal === 'function') {
-            openMetaModal(photoId);
-        }
-        });
+                        let msg = 'Error uploading file.';
+                        if (typeof errorMessage === 'string') msg = errorMessage;
 
-            this.on("error", function (file, errorMessage, xhr) {
-            if (spinner) spinner.classList.add('hidden');
+                        if (statusEl) statusEl.textContent = 'Error uploading file: ' + msg;
+                        console.error('Dropzone error details:', { file, errorMessage, xhr });
+                    });
 
-            let msg = 'Error uploading file.';
-            if (typeof errorMessage === 'string') msg = errorMessage;
+                    if (uploadAnotherBtn) {
+                        uploadAnotherBtn.addEventListener('click', function () {
+                            if (statusEl) statusEl.textContent = '';
 
-            if (statusEl) statusEl.textContent = 'Error uploading file: ' + msg;
-            console.error('Dropzone error details:', { file, errorMessage, xhr });
-        });
+                            if (dzMessage) {
+                                dzMessage.textContent =
+                                    'Please drop photos here that you would like the AI engine to learn. You can also click to browse for files.';
+                            }
 
-            if (uploadAnotherBtn) {
-            uploadAnotherBtn.addEventListener('click', function () {
-            if (statusEl) statusEl.textContent = '';
-
-            // Only show if all required selections are still set
-            updateUI();
-
-            if (dzMessage) {
-            dzMessage.textContent =
-            'Please drop photos here that you would like the AI engine to learn. You can also click to browse for files.';
-        }
-
-            uploadAnotherBtn.classList.add('hidden');
-        });
-        }
-        }
-        });
+                            uploadAnotherBtn.classList.add('hidden');
+                            // Do not force-show dropzone here. Dropdown controller decides.
+                        });
+                    }
+                }
+            });
         });
     </script>
-
-
 
     <script>
         function openMetaModal(photoId) {
@@ -703,7 +602,6 @@
             idInput.value = photoId;
             statusEl.textContent = '';
 
-            // Clear previous values
             const productEl = document.getElementById('meta-product');
             const sizeEl = document.getElementById('meta-size');
             const statusSelect = document.getElementById('meta-installationStatus');
@@ -761,16 +659,12 @@
                 })
                     .then(response => response.json())
                     .then(data => {
-                        console.log('Meta save response:', data);
-
                         if (!data.success) {
                             statusEl.textContent = 'Error saving metadata.';
                             return;
                         }
 
                         modal.classList.add('hidden');
-
-                        // Easiest way to see updated table
                         window.location.reload();
                     })
                     .catch(error => {
@@ -780,7 +674,6 @@
             });
         });
     </script>
-
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -809,8 +702,5 @@
             });
         });
     </script>
-
-
-
 
 </x-app-layout>
