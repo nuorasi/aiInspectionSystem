@@ -114,19 +114,19 @@
 
                         // Initial state
                         updateDropzoneVisibility();
-                        productEl.addEventListener('change', function () {
-                            const productId = this.value;
-                            resetSizes();
-                            updateDropzoneVisibility(); // 👈 important
-
-                            if (!productId) return;
-
-                            setSizeLoading();
-
-                            // fetch(`/products/${productId}/sizes`)
-                            //     .then(res => res.json())
-                            //     .then(...)
-                        });
+                        // productEl.addEventListener('change', function () {
+                        //     const productId = this.value;
+                        //     resetSizes();
+                        //     updateDropzoneVisibility(); // 👈 important
+                        //
+                        //     if (!productId) return;
+                        //
+                        //     setSizeLoading();
+                        //
+                        //     // fetch(`/products/${productId}/sizes`)
+                        //     //     .then(res => res.json())
+                        //     //     .then(...)
+                        // });
 
                     });
                 </script>
