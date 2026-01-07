@@ -225,13 +225,12 @@ class PhotoUploadControllerForTrain extends Controller
             'exif'        => $exifData,
 
             // Store paths
-            'path_original' => $originalPath,
-            'path_scaled'   => $scaledPath,
-            'path_thumb'    => $thumbPath,
+            'path' => $originalPath,
+            'scaledPath'   => $scaledPath,
+            'thumbPath'    => $thumbPath,
 
             // If your model currently expects `image` / `path`, pick one as the “default”
             'image'       => $scaledPath,
-            'path'        => $scaledPath,
 
             'installationStatus' =>$request->installationStatus,
             'product'=> $request->product_id,
