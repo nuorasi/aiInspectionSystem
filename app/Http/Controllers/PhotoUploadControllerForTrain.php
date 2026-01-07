@@ -105,7 +105,7 @@ class PhotoUploadControllerForTrain extends Controller
             'product_id' => ['required', 'exists:products,id'],
             'product_size_id' => [
                 'required',
-                Rule::exists('product_size', 'id')->where(function ($q) use ($request) {
+                Rule::exists('product_sizes', 'id')->where(function ($q) use ($request) {
                     $q->where('productId', $request->input('product_id'));
                 }),
             ],
