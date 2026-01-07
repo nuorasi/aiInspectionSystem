@@ -195,8 +195,8 @@
                                             />
                                         </td>
 
-                                        <td class="px-3 py-2 border">{{ $photo->product }}</td>
-                                        <td class="px-3 py-2 border">{{ $photo->size }}</td>
+                                        <td class="px-3 py-2 border">{{ $photo->product_name ?? $photo->product }}</td>
+                                        <td class="px-3 py-2 border">{{ $photo->product_size ?? $photo->size }}</td>
                                         <td class="px-3 py-2 border">{{ $photo->type }}</td>
                                         <td class="px-3 py-2 border">{{ $photo->installationStatus }}</td>
                                         <td class="px-3 py-2 border">{{ $photo->confidence }}</td>

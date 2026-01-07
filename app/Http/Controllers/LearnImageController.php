@@ -17,7 +17,7 @@ class LearnImageController extends Controller
         Log::info('IN indexAi ident 112722d ' );
 
         // return $this->apiResponse(200, 'Success', ['oAuthTestResponse' => $oneRosterBearerToken[0]->tokenValue]);
-        $photos = Photo::orderBy('id', 'desc')->get(); // or paginate()
+     //   $photos = Photo::orderBy('id', 'desc')->get(); // or paginate()
 
 //        $products = Products::select('id', 'name')->orderBy('name')->get();
 //
@@ -28,6 +28,16 @@ class LearnImageController extends Controller
 //        Log::info('IN LearnImageController ident 112722d productSizes->', (array)print_r($productSizes, true));
 //        return view('your-blade-view', compact('products', 'productSizes'));
 
+        $photos = Photo::query()
+            ->leftJoin('products', 'products.id', '=', 'photos.product')
+            ->leftJoin('product_sizes', 'product_sizes.id', '=', 'photos.size')
+            ->select([
+                'photos.*',
+                'products.name as product_name',
+                'product_sizes.size as product_size',
+            ])
+            ->orderByDesc('photos.id')
+            ->get();
         $products = Products::orderBy('name')->get(['id', 'name']);
 
         // Product sizes WITH product name
