@@ -19,14 +19,21 @@ class LearnImageController extends Controller
         // return $this->apiResponse(200, 'Success', ['oAuthTestResponse' => $oneRosterBearerToken[0]->tokenValue]);
         $photos = Photo::orderBy('id', 'desc')->get(); // or paginate()
 
-        $products = Products::select('id', 'name')->orderBy('name')->get();
-
-        $productSizes = ProductSize::select('id', 'productId', 'size')
-            ->orderBy('size')
-            ->get();
+//        $products = Products::select('id', 'name')->orderBy('name')->get();
+//
+//        $productSizes = ProductSize::select('id', 'productId', 'size')
+//            ->orderBy('size')
+//            ->get();
 //        Log::info('IN LearnImageController ident 112722d products->', (array)print_r($products, true));
 //        Log::info('IN LearnImageController ident 112722d productSizes->', (array)print_r($productSizes, true));
 //        return view('your-blade-view', compact('products', 'productSizes'));
+
+        $products = Products::orderBy('name')->get(['id', 'name']);
+
+        // Product sizes WITH product name
+        $productSizes = ProductSize::with('product')
+            ->orderBy('size')
+            ->get();
 
         return view('learnImagePage.learnImg', compact('photos','productSizes','products'));
     }

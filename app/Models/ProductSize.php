@@ -14,4 +14,12 @@ class ProductSize extends Model
         'size',
 
     ];
+
+    protected $table = 'product_sizes';
+
+    public function product()
+    {
+        return $this->belongsTo(Products::class, 'productId');
+    }
+
 }
