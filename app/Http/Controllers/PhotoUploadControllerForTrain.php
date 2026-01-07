@@ -295,7 +295,7 @@ class PhotoUploadControllerForTrain extends Controller
                 'scaled'   => Storage::disk($disk)->url($scaledPath),
                 'thumb'    => Storage::disk($disk)->url($thumbPath),
             ],
-            'predict'     => $predict, // include prediction payload
+     //       'predict'     => $predict, // include prediction payload
             'redirectUrl' => route('analyzeImagePage.analyzeImg'),
         ]);
     }
