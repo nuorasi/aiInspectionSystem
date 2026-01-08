@@ -486,7 +486,7 @@
                     paramName: "file",
                     maxFilesize: 200,
                     parallelUploads: 10,   // ✅ increase from default
-                    uploadMultiple: false, // ✅ keep single-file requests
+                    uploadMultiple: true, // ✅ keep single-file requests
                     timeout: 300000,       // ✅ 5 minutes, helpful for big images
                     acceptedFiles: "image/*",
                     headers: {
