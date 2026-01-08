@@ -78,11 +78,10 @@
                                     <th class="px-3 py-2 border">Height</th>
 
                                     <th class="px-3 py-2 border">EXIF</th>
-
+                                    <th class="px-3 py-2 border">Type</th>
                                     <th class="px-3 py-2 border">Image</th>
                                     <th class="px-3 py-2 border">Product</th>
                                     <th class="px-3 py-2 border">Size</th>
-                                    <th class="px-3 py-2 border">Type</th>
                                     <th class="px-3 py-2 border">Installation Status</th>
                                     <th class="px-3 py-2 border">Confidence</th>
                                     <th class="px-3 py-2 border">Created</th>
@@ -128,7 +127,7 @@
                                         </td>
 
 
-
+                                        <td class="px-3 py-2 border">Analyze Image</td>
                                         {{-- Thumbnail column - always visible --}}
                                         <td class="px-3 py-2 border">
                                             <img
