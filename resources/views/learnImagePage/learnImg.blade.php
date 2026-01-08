@@ -188,8 +188,9 @@
                                         <td class="px-3 py-2 border">
                                             <img
                                                 src="{{ Storage::disk($photo->disk)->url($photo->thumbPath) }}"
+                                                data-full="{{ Storage::disk($photo->disk)->url($photo->scaledPath) }}"
                                                 alt="Image"
-                                                class="w-20 h-auto rounded"
+                                                class="w-20 h-auto rounded cursor-pointer hover:opacity-80 thumbnail-click"
                                             />
                                         </td>
 
@@ -310,6 +311,32 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+
+    {{-- Image Preview Modal --}}
+    <div
+        id="image-modal"
+        class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75"
+    >
+        <div class="relative max-w-5xl w-full mx-4">
+            {{-- Close button --}}
+            <button
+                type="button"
+                id="image-modal-close"
+                class="absolute -top-10 right-0 text-white text-sm hover:underline"
+            >
+                Close ✕
+            </button>
+
+            {{-- Image --}}
+            <img
+                id="image-modal-img"
+                src=""
+                alt="Full size preview"
+                class="w-full h-auto rounded-lg shadow-lg bg-white"
+            >
         </div>
     </div>
 
@@ -703,5 +730,53 @@
             syncHidden();
         });
     </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const modal = document.getElementById('image-modal');
+            const modalImg = document.getElementById('image-modal-img');
+            const closeBtn = document.getElementById('image-modal-close');
+
+            if (!modal || !modalImg) return;
+
+            // Open modal on thumbnail click
+            document.querySelectorAll('.thumbnail-click').forEach(img => {
+                img.addEventListener('click', function () {
+                    const fullSrc = this.getAttribute('data-full');
+                    if (!fullSrc) return;
+
+                    modalImg.src = fullSrc;
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                });
+            });
+
+            // Close modal
+            function closeModal() {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                modalImg.src = '';
+            }
+
+            if (closeBtn) {
+                closeBtn.addEventListener('click', closeModal);
+            }
+
+            // Close on background click
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+
+            // Close on ESC
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    closeModal();
+                }
+            });
+        });
+    </script>
+
 
 </x-app-layout>
