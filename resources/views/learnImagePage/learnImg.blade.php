@@ -189,10 +189,15 @@
                                             <img
                                                 src="{{ Storage::disk($photo->disk)->url($photo->thumbPath) }}"
                                                 data-full="{{ Storage::disk($photo->disk)->url($photo->scaledPath) }}"
+                                                data-filename="{{ $photo->file_name }}"
+                                                data-product="{{ $photo->product_name ?? $photo->product }}"
+                                                data-size="{{ $photo->product_size ?? $photo->size }}"
+                                                data-status="{{ $photo->installationStatus }}"
                                                 alt="Image"
                                                 class="w-20 h-auto rounded cursor-pointer hover:opacity-80 thumbnail-click"
                                             />
                                         </td>
+
 
                                         <td class="px-3 py-2 border">{{ $photo->product_name ?? $photo->product }}</td>
                                         <td class="px-3 py-2 border">{{ $photo->product_size ?? $photo->size }}</td>
@@ -320,25 +325,41 @@
         id="image-modal"
         class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80"
     >
-        <div class="relative w-[95vw] h-[95vh] flex items-center justify-center">
-            {{-- Close button --}}
-            <button
-                type="button"
-                id="image-modal-close"
-                class="absolute top-4 right-4 z-10 text-white text-sm px-3 py-1 bg-black/60 rounded hover:bg-black"
-            >
-                ✕ Close
-            </button>
+        <div class="relative w-[95vw] h-[95vh] flex flex-col">
+            {{-- Top bar --}}
+            <div class="flex items-start justify-between gap-4 p-4 text-white">
+                <div class="min-w-0">
+                    <div id="image-modal-filename" class="text-base font-semibold truncate"></div>
+                    <div class="mt-1 text-sm text-white/80">
+                        <span id="image-modal-product"></span>
+                        <span class="mx-2">•</span>
+                        <span id="image-modal-size"></span>
+                        <span class="mx-2">•</span>
+                        <span id="image-modal-status"></span>
+                    </div>
+                </div>
 
-            {{-- Image --}}
-            <img
-                id="image-modal-img"
-                src=""
-                alt="Full size preview"
-                class="max-w-full max-h-full object-contain rounded-lg shadow-2xl bg-white"
-            >
+                <button
+                    type="button"
+                    id="image-modal-close"
+                    class="shrink-0 text-sm px-3 py-1 bg-black/60 rounded hover:bg-black"
+                >
+                    ✕ Close
+                </button>
+            </div>
+
+            {{-- Image area --}}
+            <div class="flex-1 flex items-center justify-center px-4 pb-4">
+                <img
+                    id="image-modal-img"
+                    src=""
+                    alt="Full size preview"
+                    class="max-w-full max-h-full object-contain rounded-lg shadow-2xl bg-white"
+                >
+            </div>
         </div>
     </div>
+
 
     {{-- Dropzone CSS --}}
     <link
@@ -737,7 +758,23 @@
             const modalImg = document.getElementById('image-modal-img');
             const closeBtn = document.getElementById('image-modal-close');
 
+            const filenameEl = document.getElementById('image-modal-filename');
+            const productEl = document.getElementById('image-modal-product');
+            const sizeEl = document.getElementById('image-modal-size');
+            const statusEl = document.getElementById('image-modal-status');
+
             if (!modal || !modalImg) return;
+
+            function closeModal() {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                modalImg.src = '';
+
+                if (filenameEl) filenameEl.textContent = '';
+                if (productEl) productEl.textContent = '';
+                if (sizeEl) sizeEl.textContent = '';
+                if (statusEl) statusEl.textContent = '';
+            }
 
             // Open modal on thumbnail click
             document.querySelectorAll('.thumbnail-click').forEach(img => {
@@ -746,37 +783,32 @@
                     if (!fullSrc) return;
 
                     modalImg.src = fullSrc;
+
+                    if (filenameEl) filenameEl.textContent = this.getAttribute('data-filename') || '';
+                    if (productEl) productEl.textContent = this.getAttribute('data-product') || '';
+                    if (sizeEl) sizeEl.textContent = this.getAttribute('data-size') || '';
+                    if (statusEl) statusEl.textContent = this.getAttribute('data-status') || '';
+
                     modal.classList.remove('hidden');
                     modal.classList.add('flex');
                 });
             });
 
-            // Close modal
-            function closeModal() {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-                modalImg.src = '';
-            }
+            // Close button
+            if (closeBtn) closeBtn.addEventListener('click', closeModal);
 
-            if (closeBtn) {
-                closeBtn.addEventListener('click', closeModal);
-            }
-
-            // Close on background click
+            // Click outside (background)
             modal.addEventListener('click', function (e) {
-                if (e.target === modal) {
-                    closeModal();
-                }
+                if (e.target === modal) closeModal();
             });
 
-            // Close on ESC
+            // ESC
             document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') {
-                    closeModal();
-                }
+                if (e.key === 'Escape') closeModal();
             });
         });
     </script>
+
 
 
 </x-app-layout>
