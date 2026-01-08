@@ -318,16 +318,16 @@
     {{-- Image Preview Modal --}}
     <div
         id="image-modal"
-        class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75"
+        class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80"
     >
-        <div class="relative max-w-5xl w-full mx-4">
+        <div class="relative w-[95vw] h-[95vh] flex items-center justify-center">
             {{-- Close button --}}
             <button
                 type="button"
                 id="image-modal-close"
-                class="absolute -top-10 right-0 text-white text-sm hover:underline"
+                class="absolute top-4 right-4 z-10 text-white text-sm px-3 py-1 bg-black/60 rounded hover:bg-black"
             >
-                Close ✕
+                ✕ Close
             </button>
 
             {{-- Image --}}
@@ -335,7 +335,7 @@
                 id="image-modal-img"
                 src=""
                 alt="Full size preview"
-                class="w-full h-auto rounded-lg shadow-lg bg-white"
+                class="max-w-full max-h-full object-contain rounded-lg shadow-2xl bg-white"
             >
         </div>
     </div>
