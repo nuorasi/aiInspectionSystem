@@ -90,13 +90,13 @@
                         </form>
 
                         {{-- Loading overlay with rotating gif --}}
-                        <div id="upload-spinner" class="hidden absolute inset-0 flex items-center justify-center bg-white/70 dark:bg-gray-800/70 rounded-xl">
-                            <img
-                                src="{{ asset('images/loading.gif') }}"
-                                alt="Uploading..."
-                                class="w-16 h-16"
-                            >
-                        </div>
+{{--                        <div id="upload-spinner" class="hidden absolute inset-0 flex items-center justify-center bg-white/70 dark:bg-gray-800/70 rounded-xl">--}}
+{{--                            <img--}}
+{{--                                src="{{ asset('images/loading.gif') }}"--}}
+{{--                                alt="Uploading..."--}}
+{{--                                class="w-16 h-16"--}}
+{{--                            >--}}
+{{--                        </div>--}}
                     </div>
 
                     {{-- Status message --}}
@@ -187,7 +187,7 @@
                                         {{-- Thumbnail column - always visible --}}
                                         <td class="px-3 py-2 border">
                                             <img
-                                                src="{{ Storage::disk($photo->disk)->url($photo->path) }}"
+                                                src="{{ Storage::disk($photo->disk)->url($photo->thumbPath) }}"
                                                 alt="Image"
                                                 class="w-20 h-auto rounded"
                                             />
