@@ -1003,7 +1003,7 @@
                 // Remove from DOM after fade completes
                 setTimeout(() => {
                     flash.remove();
-                }, 3000);
+                }, 500);
             }, 3000); // 3 seconds
         });
     </script>

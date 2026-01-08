@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Learn an Image') }}
+            {{ __('Analyze an Image') }}
         </h2>
     </x-slot>
 
@@ -25,8 +25,8 @@
                             @csrf
 
                             <div class="dz-message">
-                                Please drop photos here that you would like the AI engine to learn.
-                                You can also click to browse for files.
+                                Please drop a photo here for the AI engine to analyze.
+                                You can also click to browse for a file.
                             </div>
                         </form>
 
