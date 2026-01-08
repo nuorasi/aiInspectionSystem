@@ -164,6 +164,7 @@
                                     <th class="px-3 py-2 border">Width</th>
                                     <th class="px-3 py-2 border">Height</th>
                                     <th class="px-3 py-2 border">EXIF</th>
+                                    <th class="px-3 py-2 border">Type</th>
                                     <th class="px-3 py-2 border">Image</th>
                                     <th class="px-3 py-2 border">Product</th>
                                     <th class="px-3 py-2 border">Size</th>
@@ -211,6 +212,8 @@
 {{ json_encode($photo->exif, JSON_PRETTY_PRINT) }}
     </pre>
                                         </td>
+
+                                        <td class="px-3 py-2 border">AI Learn</td>
 
                                         {{-- Thumbnail column - always visible --}}
                                         <td class="px-3 py-2 border">
