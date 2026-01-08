@@ -488,6 +488,7 @@
                     parallelUploads: 10,   // ✅ increase from default
                     uploadMultiple: true, // ✅ keep single-file requests
                     timeout: 300000,       // ✅ 5 minutes, helpful for big images
+                    maxFiles: 50,
                     acceptedFiles: "image/*",
                     headers: {
                         "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.content || "{{ csrf_token() }}"
@@ -545,10 +546,10 @@
                 if (photoId && typeof openMetaModal === 'function') {
                     openMetaModal(photoId);
                 }
+                dz.on("queuecomplete", function () {
+                    setTimeout(() => window.location.reload(), 1500);
+                });
 
-                setTimeout(() => {
-                    window.location.reload();
-                }, 8000);
             });
 
             dz.on("error", function (file, errorMessage, xhr) {
