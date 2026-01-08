@@ -485,6 +485,9 @@
                 dz = new Dropzone(dropzoneEl, {
                     paramName: "file",
                     maxFilesize: 200,
+                    parallelUploads: 10,   // ✅ increase from default
+                    uploadMultiple: false, // ✅ keep single-file requests
+                    timeout: 300000,       // ✅ 5 minutes, helpful for big images
                     acceptedFiles: "image/*",
                     headers: {
                         "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.content || "{{ csrf_token() }}"
