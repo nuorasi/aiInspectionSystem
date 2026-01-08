@@ -193,6 +193,8 @@
                                             <button
                                                 type="button"
                                                 class="mb-2 inline-flex items-center px-2 py-1 text-xs font-semibold border border-gray-500 rounded-md bg-gray-800 text-white hover:bg-gray-700 exif-toggle-btn"
+                                                data-exif='@json($photo->exif)'
+                                                data-filename="{{ $photo->file_name }}"
                                             >
                                                 <svg
                                                     class="w-4 h-4 mr-1"
@@ -205,13 +207,10 @@
                                                           d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                     <circle cx="12" cy="12" r="3" />
                                                 </svg>
-                                                <span class="exif-toggle-label">Show</span>
+                                                <span>EXIF</span>
                                             </button>
-
-                                            <pre class="whitespace-pre-wrap text-xs exif-content hidden">
-{{ json_encode($photo->exif, JSON_PRETTY_PRINT) }}
-    </pre>
                                         </td>
+
 
                                         <td class="px-3 py-2 border">AI Learn</td>
 
@@ -414,6 +413,40 @@
                 </div>
             </div>
 
+        </div>
+    </div>
+    {{-- EXIF Modal --}}
+    <div
+        id="exif-modal"
+        class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80"
+    >
+        <div class="relative w-[95vw] h-[95vh] bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden flex flex-col">
+            {{-- Top bar --}}
+            <div class="flex items-start justify-between gap-4 p-4 border-b border-gray-200 dark:border-gray-700">
+                <div class="min-w-0">
+                    <div class="text-base font-semibold text-gray-900 dark:text-gray-100 truncate">
+                        EXIF Data
+                    </div>
+                    <div id="exif-modal-filename" class="mt-1 text-sm text-gray-600 dark:text-gray-300 truncate"></div>
+                </div>
+
+                <button
+                    type="button"
+                    id="exif-modal-close"
+                    class="shrink-0 text-sm px-3 py-1 bg-gray-900 text-white rounded hover:bg-black"
+                    aria-label="Close EXIF modal"
+                >
+                    ✕ Close
+                </button>
+            </div>
+
+            {{-- Content --}}
+            <div class="flex-1 p-4 overflow-auto">
+            <pre
+                id="exif-modal-content"
+                class="whitespace-pre-wrap text-xs text-gray-900 dark:text-gray-100"
+            ></pre>
+            </div>
         </div>
     </div>
 
@@ -761,33 +794,99 @@
         });
     </script>
 
+{{--    <script>--}}
+{{--        document.addEventListener('DOMContentLoaded', function () {--}}
+{{--            const buttons = document.querySelectorAll('.exif-toggle-btn');--}}
+
+{{--            buttons.forEach(function (btn) {--}}
+{{--                btn.addEventListener('click', function () {--}}
+{{--                    const row = btn.closest('td');--}}
+{{--                    if (!row) return;--}}
+
+{{--                    const exifBlock = row.querySelector('.exif-content');--}}
+{{--                    const label = btn.querySelector('.exif-toggle-label');--}}
+
+{{--                    if (!exifBlock) return;--}}
+
+{{--                    const isHidden = exifBlock.classList.contains('hidden');--}}
+
+{{--                    if (isHidden) {--}}
+{{--                        exifBlock.classList.remove('hidden');--}}
+{{--                        if (label) label.textContent = 'Hide';--}}
+{{--                    } else {--}}
+{{--                        exifBlock.classList.add('hidden');--}}
+{{--                        if (label) label.textContent = 'Show';--}}
+{{--                    }--}}
+{{--                });--}}
+{{--            });--}}
+{{--        });--}}
+{{--    </script>--}}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const buttons = document.querySelectorAll('.exif-toggle-btn');
+            const modal = document.getElementById('exif-modal');
+            const closeBtn = document.getElementById('exif-modal-close');
+            const contentEl = document.getElementById('exif-modal-content');
+            const filenameEl = document.getElementById('exif-modal-filename');
 
-            buttons.forEach(function (btn) {
-                btn.addEventListener('click', function () {
-                    const row = btn.closest('td');
-                    if (!row) return;
+            if (!modal || !contentEl) return;
 
-                    const exifBlock = row.querySelector('.exif-content');
-                    const label = btn.querySelector('.exif-toggle-label');
+            function closeExifModal() {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                contentEl.textContent = '';
+                if (filenameEl) filenameEl.textContent = '';
+            }
 
-                    if (!exifBlock) return;
+            function openExifModal(exifValue, filename) {
+                let text = '';
 
-                    const isHidden = exifBlock.classList.contains('hidden');
-
-                    if (isHidden) {
-                        exifBlock.classList.remove('hidden');
-                        if (label) label.textContent = 'Hide';
-                    } else {
-                        exifBlock.classList.add('hidden');
-                        if (label) label.textContent = 'Show';
+                if (exifValue === null || exifValue === undefined || exifValue === '') {
+                    text = 'No EXIF data found.';
+                } else if (typeof exifValue === 'string') {
+                    // If it is already a JSON string, try to pretty-print it
+                    try {
+                        const parsed = JSON.parse(exifValue);
+                        text = JSON.stringify(parsed, null, 2);
+                    } catch (e) {
+                        text = exifValue;
                     }
+                } else {
+                    // Object/array
+                    text = JSON.stringify(exifValue, null, 2);
+                }
+
+                contentEl.textContent = text;
+                if (filenameEl) filenameEl.textContent = filename ? `File: ${filename}` : '';
+
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+
+            document.querySelectorAll('.exif-toggle-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    const exif = btn.dataset.exif;
+                    const filename = btn.dataset.filename || '';
+                    openExifModal(exif, filename);
                 });
+            });
+
+            if (closeBtn) closeBtn.addEventListener('click', closeExifModal);
+
+            // Click outside the dialog closes
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) closeExifModal();
+            });
+
+            // ESC closes
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                    closeExifModal();
+                }
             });
         });
     </script>
+
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const installEl = document.getElementById('installation_status');
