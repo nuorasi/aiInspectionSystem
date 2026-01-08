@@ -125,18 +125,30 @@
 {{ json_encode($photo->exif, JSON_PRETTY_PRINT) }}
     </pre>
                                         </td>
-
-
-                                        <td class="px-3 py-2 border">Analyze Image</td>
                                         {{-- Thumbnail column - always visible --}}
                                         <td class="px-3 py-2 border">
                                             <img
-                                                src="{{ Storage::disk($photo->disk)->url($photo->path_thumb) }}"
+                                                src="{{ Storage::disk($photo->disk)->url($photo->thumbPath) }}"
+                                                data-full="{{ Storage::disk($photo->disk)->url($photo->scaledPath) }}"
+                                                data-filename="{{ $photo->file_name }}"
+                                                data-product="{{ $photo->product_name ?? $photo->product }}"
+                                                data-size="{{ $photo->product_size ?? $photo->size }}"
+                                                data-status="{{ $photo->installationStatus }}"
                                                 alt="Image"
-                                                class="w-20 h-auto rounded"
+                                                class="w-20 h-auto rounded cursor-pointer hover:opacity-80 thumbnail-click"
                                             />
-
                                         </td>
+
+{{--                                        <td class="px-3 py-2 border">Analyze Image</td>--}}
+{{--                                        --}}{{-- Thumbnail column - always visible --}}
+{{--                                        <td class="px-3 py-2 border">--}}
+{{--                                            <img--}}
+{{--                                                src="{{ Storage::disk($photo->disk)->url($photo->path_thumb) }}"--}}
+{{--                                                alt="Image"--}}
+{{--                                                class="w-20 h-auto rounded"--}}
+{{--                                            />--}}
+
+{{--                                        </td>--}}
 
 
                                         <td class="px-3 py-2 border">{{ $photo->product }}</td>
