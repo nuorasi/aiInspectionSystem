@@ -349,14 +349,21 @@
             </div>
 
             {{-- Image area --}}
-            <div class="flex-1 flex items-center justify-center px-4 pb-4">
-                <img
-                    id="image-modal-img"
-                    src=""
-                    alt="Full size preview"
-                    class="max-w-full max-h-full object-contain rounded-lg shadow-2xl bg-white"
+            <div class="flex-1 px-4 pb-4">
+                <div
+                    id="image-modal-viewport"
+                    class="w-full h-full flex items-center justify-center overflow-hidden rounded-lg"
                 >
+                    <img
+                        id="image-modal-img"
+                        src=""
+                        alt="Full size preview"
+                        class="max-w-full max-h-full object-contain bg-white select-none cursor-zoom-in"
+                        draggable="false"
+                    >
+                </div>
             </div>
+
         </div>
     </div>
 
@@ -385,6 +392,10 @@
             font-size: 1.1rem;
             color: #4b5563;
         }
+        #image-modal-img {
+            transition: transform 80ms linear;
+        }
+
     </style>
 
     {{-- Dropzone JS --}}
@@ -752,9 +763,11 @@
         });
     </script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
             const modal = document.getElementById('image-modal');
+            const viewport = document.getElementById('image-modal-viewport');
             const modalImg = document.getElementById('image-modal-img');
             const closeBtn = document.getElementById('image-modal-close');
 
@@ -763,51 +776,177 @@
             const sizeEl = document.getElementById('image-modal-size');
             const statusEl = document.getElementById('image-modal-status');
 
-            if (!modal || !modalImg) return;
+            if (!modal || !viewport || !modalImg) return;
+
+            // Zoom state
+            let scale = 1;
+            let translateX = 0;
+            let translateY = 0;
+
+            let isPanning = false;
+            let panStartX = 0;
+            let panStartY = 0;
+
+            const MIN_SCALE = 1;
+            const MAX_SCALE = 6;
+            const CLICK_ZOOM = 2;
+
+            function applyTransform() {
+            modalImg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+            modalImg.style.transformOrigin = 'center center';
+
+            if (scale > 1) {
+            modalImg.classList.remove('cursor-zoom-in');
+            modalImg.classList.add('cursor-grab');
+        } else {
+            modalImg.classList.remove('cursor-grab');
+            modalImg.classList.add('cursor-zoom-in');
+        }
+        }
+
+            function resetZoom() {
+            scale = 1;
+            translateX = 0;
+            translateY = 0;
+            isPanning = false;
+            applyTransform();
+        }
+
+            function clampScale(next) {
+            return Math.min(MAX_SCALE, Math.max(MIN_SCALE, next));
+        }
 
             function closeModal() {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-                modalImg.src = '';
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            modalImg.src = '';
 
-                if (filenameEl) filenameEl.textContent = '';
-                if (productEl) productEl.textContent = '';
-                if (sizeEl) sizeEl.textContent = '';
-                if (statusEl) statusEl.textContent = '';
-            }
+            if (filenameEl) filenameEl.textContent = '';
+            if (productEl) productEl.textContent = '';
+            if (sizeEl) sizeEl.textContent = '';
+            if (statusEl) statusEl.textContent = '';
+
+            resetZoom();
+        }
+
+            function openModalFromThumb(thumbEl) {
+            const fullSrc = thumbEl.getAttribute('data-full');
+            if (!fullSrc) return;
+
+            modalImg.src = fullSrc;
+
+            if (filenameEl) filenameEl.textContent = thumbEl.getAttribute('data-filename') || '';
+            if (productEl) productEl.textContent = thumbEl.getAttribute('data-product') || '';
+            if (sizeEl) sizeEl.textContent = thumbEl.getAttribute('data-size') || '';
+            if (statusEl) statusEl.textContent = thumbEl.getAttribute('data-status') || '';
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            resetZoom();
+        }
 
             // Open modal on thumbnail click
             document.querySelectorAll('.thumbnail-click').forEach(img => {
-                img.addEventListener('click', function () {
-                    const fullSrc = this.getAttribute('data-full');
-                    if (!fullSrc) return;
-
-                    modalImg.src = fullSrc;
-
-                    if (filenameEl) filenameEl.textContent = this.getAttribute('data-filename') || '';
-                    if (productEl) productEl.textContent = this.getAttribute('data-product') || '';
-                    if (sizeEl) sizeEl.textContent = this.getAttribute('data-size') || '';
-                    if (statusEl) statusEl.textContent = this.getAttribute('data-status') || '';
-
-                    modal.classList.remove('hidden');
-                    modal.classList.add('flex');
-                });
-            });
+            img.addEventListener('click', function () {
+            openModalFromThumb(this);
+        });
+        });
 
             // Close button
             if (closeBtn) closeBtn.addEventListener('click', closeModal);
 
             // Click outside (background)
             modal.addEventListener('click', function (e) {
-                if (e.target === modal) closeModal();
-            });
+            if (e.target === modal) closeModal();
+        });
 
             // ESC
             document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') closeModal();
-            });
+            if (e.key === 'Escape') closeModal();
+        });
+
+            // Toggle zoom on click (on the image only)
+            modalImg.addEventListener('click', function (e) {
+            e.stopPropagation(); // don't trigger background close
+
+            if (scale === 1) {
+            scale = CLICK_ZOOM;
+        } else {
+            resetZoom();
+            return;
+        }
+
+            applyTransform();
+        });
+
+            // Double click zoom in/out
+            modalImg.addEventListener('dblclick', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (scale < CLICK_ZOOM) {
+            scale = CLICK_ZOOM;
+        } else {
+            resetZoom();
+            return;
+        }
+            applyTransform();
+        });
+
+            // Wheel zoom (trackpad/mouse)
+            viewport.addEventListener('wheel', function (e) {
+            // Allow normal scroll when modal is closed
+            if (modal.classList.contains('hidden')) return;
+
+            e.preventDefault();
+
+            const delta = e.deltaY;
+            const zoomFactor = delta > 0 ? 0.9 : 1.1;
+            const nextScale = clampScale(scale * zoomFactor);
+
+            // If we are at 1 and zooming out, keep it at 1
+            if (scale === 1 && nextScale === 1) return;
+
+            scale = nextScale;
+            applyTransform();
+        }, { passive: false });
+
+            // Pan by dragging when zoomed
+            modalImg.addEventListener('mousedown', function (e) {
+            if (scale <= 1) return;
+
+            isPanning = true;
+            modalImg.classList.remove('cursor-grab');
+            modalImg.classList.add('cursor-grabbing');
+
+            panStartX = e.clientX - translateX;
+            panStartY = e.clientY - translateY;
+            e.preventDefault();
+        });
+
+            window.addEventListener('mousemove', function (e) {
+            if (!isPanning) return;
+
+            translateX = e.clientX - panStartX;
+            translateY = e.clientY - panStartY;
+            applyTransform();
+        });
+
+            window.addEventListener('mouseup', function () {
+            if (!isPanning) return;
+            isPanning = false;
+
+            modalImg.classList.remove('cursor-grabbing');
+            if (scale > 1) modalImg.classList.add('cursor-grab');
+        });
+
+            // Touch support: pinch-to-zoom is non-trivial without a lib.
+            // If you want mobile pinch, tell me and I'll add it cleanly.
         });
     </script>
+
+
 
 
 
