@@ -1110,6 +1110,106 @@
         });
     </script>
 
+    <script>
+        function onlyBreakAfterCloseComma(jsonPretty) {
+            // Insert a CRLF only when a comma comes right after a closing } or ]
+            // Keeps normal commas untouched.
+            return jsonPretty
+                .replace(/},/g, '},\r\n')
+                .replace(/],/g, '],\r\n');
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const modal = document.getElementById('exif-modal');
+            const closeBtn = document.getElementById('exif-modal-close');
+            const contentEl = document.getElementById('exif-modal-content');
+            const filenameEl = document.getElementById('exif-modal-filename');
+
+            if (!modal || !contentEl) return;
+
+            function closeExifModal() {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                contentEl.textContent = '';
+                if (filenameEl) filenameEl.textContent = '';
+            }
+
+            // function openExifModal(exifValue, filename) {
+            //     let text = '';
+            //
+            //     if (exifValue === null || exifValue === undefined || exifValue === '') {
+            //         text = 'No EXIF data found.';
+            //     } else if (typeof exifValue === 'string') {
+            //         try {
+            //             const parsed = JSON.parse(exifValue);
+            //             text = JSON.stringify(parsed, null, 2);
+            //         } catch (e) {
+            //             text = exifValue;
+            //         }
+            //     } else {
+            //         text = JSON.stringify(exifValue, null, 2);
+            //     }
+            //
+            //     // ✅ apply your “only CRLF after }, (and ],)” rule
+            //     text = onlyBreakAfterCloseComma(text);
+            //
+            //     contentEl.textContent = text;
+            //     if (filenameEl) filenameEl.textContent = filename ? `File: ${filename}` : '';
+            //
+            //     modal.classList.remove('hidden');
+            //     modal.classList.add('flex');
+            // }
+
+            function openExifModal(exifValue, filename) {
+                let text = '';
+
+                if (exifValue === null || exifValue === undefined || exifValue === '') {
+                    text = 'No EXIF data found.';
+                } else if (typeof exifValue === 'string') {
+                    try {
+                        const parsed = JSON.parse(exifValue);
+                        text = JSON.stringify(parsed, null, 2);
+                    } catch (e) {
+                        text = exifValue;
+                    }
+                } else {
+                    text = JSON.stringify(exifValue, null, 2);
+                }
+
+                // ✅ RIGHT HERE: transform the string before rendering it
+                text = onlyBreakAfterCloseComma(text);
+
+                // ✅ THEN render it
+                contentEl.textContent = text;
+
+                if (filenameEl) filenameEl.textContent = filename ? `File: ${filename}` : '';
+
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+
+            document.querySelectorAll('.exif-toggle-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    const exif = btn.dataset.exif;
+                    const filename = btn.dataset.filename || '';
+                    openExifModal(exif, filename);
+                });
+            });
+
+            if (closeBtn) closeBtn.addEventListener('click', closeExifModal);
+
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) closeExifModal();
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                    closeExifModal();
+                }
+            });
+        });
+    </script>
+
 
 
 
