@@ -7,10 +7,14 @@
 
     <div class="py-12">
         @if (session('status'))
-            <div class="mb-4 rounded bg-green-100 text-green-800 px-4 py-2">
+            <div
+                id="flash-message"
+                class="mb-4 rounded bg-green-100 text-green-800 px-4 py-2 transition-opacity duration-500"
+            >
                 {{ session('status') }}
             </div>
         @endif
+
         <div class="w-full mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg">
 
@@ -987,6 +991,21 @@
 
             // Touch support: pinch-to-zoom is non-trivial without a lib.
             // If you want mobile pinch, tell me and I'll add it cleanly.
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const flash = document.getElementById('flash-message');
+            if (!flash) return;
+
+            setTimeout(() => {
+                flash.classList.add('opacity-0');
+
+                // Remove from DOM after fade completes
+                setTimeout(() => {
+                    flash.remove();
+                }, 500);
+            }, 3000); // 3 seconds
         });
     </script>
 
