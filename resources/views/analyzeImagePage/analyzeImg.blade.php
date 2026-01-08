@@ -11,7 +11,7 @@
 
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <h3 class="text-lg font-semibold mb-4">
-                        Upload photos for the AI engine
+                        Upload a photo for the AI engine to analyze
                     </h3>
 
                     {{-- Dropzone wrapper for fade in / out --}}
