@@ -480,14 +480,15 @@
             }
 
             // Reuse existing instance if already attached, otherwise create it.
+// Reuse existing instance if already attached, otherwise create it.
             let dz = dropzoneEl.dropzone;
             if (!dz) {
                 dz = new Dropzone(dropzoneEl, {
                     paramName: "file",
                     maxFilesize: 200,
-                    parallelUploads: 10,   // ✅ increase from default
-                    uploadMultiple: true, // ✅ keep single-file requests
-                    timeout: 300000,       // ✅ 5 minutes, helpful for big images
+                    parallelUploads: 10,
+                    uploadMultiple: false, // ✅ IMPORTANT: one file per request
+                    timeout: 300000,
                     maxFiles: 50,
                     acceptedFiles: "image/*",
                     headers: {
@@ -503,7 +504,7 @@
                 });
             }
 
-            // Prevent binding handlers multiple times
+// Prevent binding handlers multiple times
             if (dz.__learnImgBound) return;
             dz.__learnImgBound = true;
 
@@ -520,36 +521,15 @@
                 dz.removeFile(file);
                 if (spinner) spinner.classList.add('hidden');
 
-                if (dzMessage) dzMessage.textContent = 'Upload saved. Resetting page and updating grid...';
+                if (dzMessage) dzMessage.textContent = 'Uploaded. Continuing...';
 
-                let payload = response;
-                if (typeof response === 'string') {
-                    try { payload = JSON.parse(response); } catch (e) {}
-                }
+                // Do NOT hide dropzone per-file when batch uploading
+                // hideDropzone(); // optional: comment out while doing multiple uploads
+            });
 
-                const imageUrl =
-                    payload?.url ||
-                    payload?.urls?.scaled ||
-                    payload?.urls?.original ||
-                    payload?.urls?.thumb ||
-                    null;
-
-                if (imageEl && imageUrl) {
-                    imageEl.src = imageUrl;
-                    if (imageWrapper) imageWrapper.classList.remove('hidden');
-                }
-
-                hideDropzone();
-                if (uploadAnotherBtn) uploadAnotherBtn.classList.remove('hidden');
-
-                const photoId = payload?.photo?.id ?? null;
-                if (photoId && typeof openMetaModal === 'function') {
-                    openMetaModal(photoId);
-                }
-                dz.on("queuecomplete", function () {
-                    setTimeout(() => window.location.reload(), 1500);
-                });
-
+            dz.on("queuecomplete", function () {
+                if (dzMessage) dzMessage.textContent = 'All uploads complete. Updating grid...';
+                setTimeout(() => window.location.reload(), 800);
             });
 
             dz.on("error", function (file, errorMessage, xhr) {
@@ -569,6 +549,7 @@
                 if (statusEl) statusEl.textContent = 'Error uploading file: ' + msg;
                 console.error('Dropzone error details:', { file, errorMessage, xhr });
             });
+
 
             if (uploadAnotherBtn) {
                 uploadAnotherBtn.addEventListener('click', function () {
