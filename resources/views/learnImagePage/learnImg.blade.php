@@ -133,7 +133,7 @@
                     {{-- Photos Table --}}
                     <div class="mt-10">
                         <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-lg font-semibold">Uploaded Photos</h3>
+                            <h3 class="text-lg font-semibold">Uploaded AI Model Training Photos</h3>
 
                             <form
                                 action="{{ route('photos.destroyAll') }}"
@@ -1003,7 +1003,7 @@
                 // Remove from DOM after fade completes
                 setTimeout(() => {
                     flash.remove();
-                }, 500);
+                }, 3000);
             }, 3000); // 3 seconds
         });
     </script>
