@@ -132,7 +132,6 @@
 
                     {{-- Photos Table --}}
                     <div class="mt-10">
-                        <h3 class="text-lg font-semibold mb-4">Uploaded Photos</h3>
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-lg font-semibold">Uploaded Photos</h3>
 
