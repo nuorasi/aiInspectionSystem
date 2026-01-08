@@ -6,6 +6,11 @@
     </x-slot>
 
     <div class="py-12">
+        @if (session('status'))
+            <div class="mb-4 rounded bg-green-100 text-green-800 px-4 py-2">
+                {{ session('status') }}
+            </div>
+        @endif
         <div class="w-full mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg">
 
@@ -124,7 +129,25 @@
                     {{-- Photos Table --}}
                     <div class="mt-10">
                         <h3 class="text-lg font-semibold mb-4">Uploaded Photos</h3>
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold">Uploaded Photos</h3>
 
+                            <form
+                                action="{{ route('photos.destroyAll') }}"
+                                method="POST"
+                                onsubmit="return confirm('Delete ALL photos? This cannot be undone.')"
+                            >
+                                @csrf
+                                @method('DELETE')
+
+                                <button
+                                    type="submit"
+                                    class="px-3 py-2 text-xs font-semibold rounded bg-red-700 text-white hover:bg-red-800"
+                                >
+                                    Delete All
+                                </button>
+                            </form>
+                        </div>
                         <div class="overflow-x-auto">
                             <table class="min-w-full text-sm text-left border border-gray-600">
                                 <thead class="bg-gray-700 text-white">
@@ -144,6 +167,8 @@
                                     <th class="px-3 py-2 border">Installation Status</th>
                                     <th class="px-3 py-2 border">Created</th>
                                     <th class="px-3 py-2 border">Updated</th>
+                                    <th class="px-3 py-2 border">Actions</th>
+
                                 </tr>
                                 </thead>
 
@@ -204,6 +229,25 @@
                                         <td class="px-3 py-2 border">{{ $photo->installationStatus }}</td>
                                         <td class="px-3 py-2 border">{{ $photo->created_at }}</td>
                                         <td class="px-3 py-2 border">{{ $photo->updated_at }}</td>
+                                        <td class="px-3 py-2 border whitespace-nowrap">
+                                            <form
+                                                action="{{ route('photos.destroy', $photo->id) }}"
+                                                method="POST"
+                                                class="inline"
+                                                onsubmit="return confirm('Delete this photo? This cannot be undone.')"
+                                            >
+                                                @csrf
+                                                @method('DELETE')
+
+                                                <button
+                                                    type="submit"
+                                                    class="px-2 py-1 text-xs font-semibold rounded bg-red-600 text-white hover:bg-red-700"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </td>
+
                                     </tr>
                                 @endforeach
                                 </tbody>

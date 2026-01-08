@@ -15,6 +15,10 @@ use Intervention\Image\Drivers\Gd\Driver; // or Imagick\Driver if you prefer
 
 use Illuminate\Validation\Rule;
 
+
+use Illuminate\Http\RedirectResponse;
+
+
 class PhotoUploadControllerForTrain extends Controller
 {
 //    public function store(Request $request): JsonResponse
@@ -347,4 +351,46 @@ class PhotoUploadControllerForTrain extends Controller
             'photo'   => $photo,
         ]);
     }
+
+
+
+    public function destroy(Photo $photo): RedirectResponse
+    {
+        // Delete files (adjust to your column names)
+        if ($photo->path) {
+            Storage::disk($photo->disk)->delete($photo->path);
+        }
+        if (!empty($photo->scaledPath)) {
+            Storage::disk($photo->disk)->delete($photo->scaledPath);
+        }
+        if (!empty($photo->thumbPath)) {
+            Storage::disk($photo->disk)->delete($photo->thumbPath);
+        }
+
+        $photo->delete();
+
+        return back()->with('status', 'Photo deleted.');
+    }
+
+    public function destroyAll(): RedirectResponse
+    {
+        $photos = Photo::all();
+
+        foreach ($photos as $photo) {
+            if ($photo->path) {
+                Storage::disk($photo->disk)->delete($photo->path);
+            }
+            if (!empty($photo->scaledPath)) {
+                Storage::disk($photo->disk)->delete($photo->scaledPath);
+            }
+            if (!empty($photo->thumbPath)) {
+                Storage::disk($photo->disk)->delete($photo->thumbPath);
+            }
+        }
+
+        Photo::query()->delete();
+
+        return back()->with('status', 'All photos deleted.');
+    }
+
 }

@@ -58,4 +58,12 @@ Route::get('/products/{product}/sizes', function ($productId) {
 
 Route::post('/photos', [PhotoUploadControllerForTrain::class, 'store'])->name('photos.store');
 
+
+
+Route::delete('/photos/{photo}', [PhotoUploadControllerForTrain::class, 'destroy'])->name('photos.destroy');
+Route::delete('/photos', [PhotoUploadControllerForTrain::class, 'destroyAll'])->name('photos.destroyAll');
+
+
+
+
 require __DIR__.'/auth.php';
