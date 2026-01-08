@@ -194,7 +194,7 @@ class PhotoUploadControllerForTrain extends Controller
 
         // Scaled
       //  $scaled = $img->clone()->scaleDown(width: 1000); // keeps aspect ratio, no upsize
-        $scaled = (clone $img)->scaleDown(width: 1000);
+        $scaled = (clone $img)->scaleDown(width: 1500);
         $scaledPath = "{$scaledDir}/{$filename}";
         Storage::disk($disk)->put(
             $scaledPath,
