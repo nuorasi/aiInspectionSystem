@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Photo;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+
+use Illuminate\Http\JsonResponse;
+
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
@@ -15,7 +17,7 @@ use Intervention\Image\Drivers\Gd\Driver; // or Imagick\Driver if you prefer
 
 use Illuminate\Validation\Rule;
 
-
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\RedirectResponse;
 
 
@@ -283,7 +285,7 @@ class PhotoUploadControllerForTrain extends Controller
 //                'error' => $e->getMessage(),
 //            ]);
 //        }
-        Log::info('in PhotoUploadControllerForTrain store ident qq   TensorFlow Predict =>> RESPONSE');
+        Log::info('in PhotoUploadControllerForTrain store ident 87263   TensorFlow Predict =>> RESPONSE');
 
 //        return response()->json([
 //            'success' => true,
