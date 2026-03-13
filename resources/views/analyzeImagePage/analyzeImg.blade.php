@@ -319,7 +319,7 @@
             console.log('analyzeImage 2 b ');
             const dz = new Dropzone(dropzoneEl, {
                 paramName: "file",
-                maxFilesize: 200,
+                maxFilesize: 15,
                 acceptedFiles: "image/*",
                 headers: {
                     "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.content || "{{ csrf_token() }}"
