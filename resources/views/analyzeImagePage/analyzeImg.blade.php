@@ -317,21 +317,17 @@
             // Guard: prevent "Dropzone already attached."
             if (dropzoneEl.dropzone) return;
             console.log('analyzeImage 2 b ');
-            let dz = dropzoneEl.dropzone;
-            if (!dz) {
-                dz = new Dropzone(dropzoneEl, {
-                    paramName: "file",
-                    maxFilesize: 200,
-                    parallelUploads: 10,
-                    uploadMultiple: false, // ✅ IMPORTANT: one file per request
-                    timeout: 300000,
-                    maxFiles: 50,
-                    acceptedFiles: "image/*",
-                    headers: {
-                        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.content || "{{ csrf_token() }}"
-                    }
-                });
-            }
+            const dz = new Dropzone(dropzoneEl, {
+                paramName: "file",
+                maxFilesize: 200,
+                parallelUploads: 10,
+                uploadMultiple: false, // ✅ IMPORTANT: one file per request
+                timeout: 300000,
+                maxFiles: 50,
+                acceptedFiles: "image/*",
+                headers: {
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.content || "{{ csrf_token() }}"
+                },
 
 
 
