@@ -437,6 +437,9 @@
             const modal = document.getElementById('meta-modal');
             const idInput = document.getElementById('meta-photo-id');
             const statusEl = document.getElementById('meta-status');
+            console.error('Meta modal '+modal);
+            console.error('Meta idInput '+idInput);
+            console.error('Meta statusEl '+statusEl);
 
             if (!modal || !idInput) {
                 console.error('Meta modal elements not found');
