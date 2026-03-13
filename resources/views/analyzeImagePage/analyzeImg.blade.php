@@ -313,10 +313,10 @@
             console.log('analyzeImage 2 ');
             const dropzoneEl = document.getElementById('learn-dropzone');
             if (!dropzoneEl) return;
-
+            console.log('analyzeImage 2 a');
             // Guard: prevent "Dropzone already attached."
             if (dropzoneEl.dropzone) return;
-
+            console.log('analyzeImage 2 b ');
             const dz = new Dropzone(dropzoneEl, {
                 paramName: "file",
                 maxFilesize: 200,
