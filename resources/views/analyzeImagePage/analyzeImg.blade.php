@@ -306,7 +306,7 @@
 
     <script>
         Dropzone.autoDiscover = false;
-        console.log('analyzeImage 1 ');
+        console.log('analyzeImage 1A ');
 
 
         document.addEventListener('DOMContentLoaded', function () {
