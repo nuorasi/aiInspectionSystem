@@ -10,7 +10,8 @@ class PredictController extends Controller
     public function upload(Request $request)
     {
         $request->validate([
-            'file' => ['required', 'file', 'mimes:jpg,jpeg,png,webp', 'max:15360'], // 15MB
+            //'file' => ['required', 'file', 'mimes:jpg,jpeg,png,webp', 'max:15360'], // 15MB
+            'file' =>   'required|image|mimes:jpg,jpeg,png|max:15360',
         ]);
 
         $file = $request->file('file');
