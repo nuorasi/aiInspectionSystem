@@ -24,28 +24,7 @@
                     </h3>
 
                     {{-- Required selections before upload --}}
-                    <div class="mb-6">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            {{-- Installation Status --}}
-                            <div>
-                                <label for="installation_status" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                                    Installation Status
-                                </label>
-                                <select
-                                    id="installation_status"
-                                    class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900"
-                                >
-                                    <option value="">Select status</option>
-                                    <option value="Complete">Complete</option>
-                                    <option value="Incomplete">Incomplete</option>
-                                </select>
-                            </div>
 
-
-
-                            {{-- Product Size (loads after product selection) --}}
-
-                        </div>
 
 
                     </div>
@@ -473,7 +452,7 @@
             }
 
             function showDropzone() {
-                dropzoneWrapper.classList.remove('hidden');
+                dropzoneWrapper.classList.remove('show');
                 requestAnimationFrame(() => {
                     dropzoneWrapper.classList.remove('opacity-0', 'pointer-events-none');
                 });
@@ -482,7 +461,7 @@
             function hideDropzone() {
                 dropzoneWrapper.classList.add('opacity-0', 'pointer-events-none');
                 setTimeout(() => {
-                    dropzoneWrapper.classList.add('hidden');
+                    dropzoneWrapper.classList.add('show');
                 }, 300);
             }
 
@@ -591,7 +570,7 @@
             function hideDropzone() {
                 if (!dropzoneWrapper) return;
                 dropzoneWrapper.classList.add('opacity-0', 'pointer-events-none');
-                setTimeout(() => dropzoneWrapper.classList.add('hidden'), 300);
+                setTimeout(() => dropzoneWrapper.classList.add('show'), 300);
             }
 
             // Reuse existing instance if already attached, otherwise create it.
