@@ -1,21 +1,84 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Analyze an Image') }}
-        </h2>
+        <h1 class="font-semibold text-3xl text-gray-800 dark:text-gray-200 leading-tight">
+            {{ __('AI Model Training') }}
+        </h1>
     </x-slot>
 
     <div class="py-12">
+        @if (session('status'))
+            <div
+                id="flash-message"
+                class="mb-4 rounded bg-green-100 text-green-800 px-4 py-2 transition-opacity duration-500"
+            >
+                {{ session('status') }}
+            </div>
+        @endif
+
         <div class="w-full mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg">
 
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <h3 class="text-lg font-semibold mb-4">
-                        Upload a photo for the AI engine to analyze
+                        Upload photo(s) of the same Installation Status, Product, and Size to Train the AI model
                     </h3>
 
+                    {{-- Required selections before upload --}}
+                    <div class="mb-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {{-- Installation Status --}}
+                            <div>
+                                <label for="installation_status" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                                    Installation Status
+                                </label>
+                                <select
+                                    id="installation_status"
+                                    class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900"
+                                >
+                                    <option value="">Select status</option>
+                                    <option value="Complete">Complete</option>
+                                    <option value="Incomplete">Incomplete</option>
+                                </select>
+                            </div>
+
+                            {{-- Product --}}
+                            <div>
+                                <label for="product_id" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                                    Product
+                                </label>
+                                <select
+                                    id="product_id"
+                                    class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900"
+                                >
+                                    <option value="">Select product</option>
+                                    @foreach ($products as $p)
+                                        <option value="{{ $p->id }}">{{ $p->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            {{-- Product Size (loads after product selection) --}}
+                            <div>
+                                <label for="product_size_id" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                                    Product Size
+                                </label>
+                                <select
+                                    id="product_size_id"
+                                    class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900"
+                                    disabled
+                                >
+                                    <option value="">Select size</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <p id="selection-hint" class="mt-3 text-sm text-gray-600 dark:text-gray-300">
+                            Select Installation Status, Product, and Product Size to enable uploads.
+                        </p>
+                    </div>
+
                     {{-- Dropzone wrapper for fade in / out --}}
-                    <div id="dropzone-wrapper" class="relative transition-opacity duration-500">
+                    <div id="dropzone-wrapper" class="relative transition-opacity duration-500 hidden opacity-0 pointer-events-none">
                         <form
                             action="{{ route('photos.upload') }}"
                             method="post"
@@ -23,21 +86,26 @@
                             id="learn-dropzone"
                         >
                             @csrf
+                            <input type="hidden" name="installationStatus" id="dz-installationStatus">
+                            <input type="hidden" name="product_id" id="dz-product_id">
+                            <input type="hidden" name="product_size_id" id="dz-product_size_id">
+
+
 
                             <div class="dz-message">
-                                Please drop a photo here for the AI engine to analyze.
-                                You can also click to browse for a file.
+                                Please drop photos here that you would like the AI engine to learn.
+                                You can also click to browse for files.
                             </div>
                         </form>
 
                         {{-- Loading overlay with rotating gif --}}
-                        <div id="upload-spinner" class="hidden absolute inset-0 flex items-center justify-center bg-white/70 dark:bg-gray-800/70 rounded-xl">
-                            <img
-                                src="{{ asset('images/loading.gif') }}"
-                                alt="Uploading..."
-                                class="w-16 h-16"
-                            >
-                        </div>
+                        {{--                        <div id="upload-spinner" class="hidden absolute inset-0 flex items-center justify-center bg-white/70 dark:bg-gray-800/70 rounded-xl">--}}
+                        {{--                            <img--}}
+                        {{--                                src="{{ asset('images/loading.gif') }}"--}}
+                        {{--                                alt="Uploading..."--}}
+                        {{--                                class="w-16 h-16"--}}
+                        {{--                            >--}}
+                        {{--                        </div>--}}
                     </div>
 
                     {{-- Status message --}}
@@ -61,9 +129,28 @@
                     >
                         Upload another file
                     </button>
+
                     {{-- Photos Table --}}
                     <div class="mt-10">
-                        <h3 class="text-lg font-semibold mb-4">Uploaded Photos</h3>
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold">Uploaded AI Model Training Photos</h3>
+
+                            <form
+                                action="{{ route('photos.destroyAll') }}"
+                                method="POST"
+                                onsubmit="return confirm('Delete ALL photos? This cannot be undone.')"
+                            >
+                                @csrf
+                                @method('DELETE')
+
+                                <button
+                                    type="submit"
+                                    class="px-3 py-2 text-xs font-semibold rounded bg-red-700 text-white hover:bg-red-800"
+                                >
+                                    Delete All
+                                </button>
+                            </form>
+                        </div>
                         <div class="overflow-x-auto">
                             <table class="min-w-full text-sm text-left border border-gray-600">
                                 <thead class="bg-gray-700 text-white">
@@ -76,16 +163,16 @@
                                     <th class="px-3 py-2 border">Size (bytes)</th>
                                     <th class="px-3 py-2 border">Width</th>
                                     <th class="px-3 py-2 border">Height</th>
-
                                     <th class="px-3 py-2 border">EXIF</th>
                                     <th class="px-3 py-2 border">Type</th>
                                     <th class="px-3 py-2 border">Image</th>
                                     <th class="px-3 py-2 border">Product</th>
                                     <th class="px-3 py-2 border">Size</th>
                                     <th class="px-3 py-2 border">Installation Status</th>
-                                    <th class="px-3 py-2 border">Confidence</th>
                                     <th class="px-3 py-2 border">Created</th>
                                     <th class="px-3 py-2 border">Updated</th>
+                                    <th class="px-3 py-2 border">Actions</th>
+
                                 </tr>
                                 </thead>
 
@@ -106,6 +193,8 @@
                                             <button
                                                 type="button"
                                                 class="mb-2 inline-flex items-center px-2 py-1 text-xs font-semibold border border-gray-500 rounded-md bg-gray-800 text-white hover:bg-gray-700 exif-toggle-btn"
+                                                data-exif='@json($photo->exif)'
+                                                data-filename="{{ $photo->file_name }}"
                                             >
                                                 <svg
                                                     class="w-4 h-4 mr-1"
@@ -118,13 +207,13 @@
                                                           d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                     <circle cx="12" cy="12" r="3" />
                                                 </svg>
-                                                <span class="exif-toggle-label">Show</span>
+                                                <span>EXIF</span>
                                             </button>
-
-                                            <pre class="whitespace-pre-wrap text-xs exif-content hidden">
-{{ json_encode($photo->exif, JSON_PRETTY_PRINT) }}
-    </pre>
                                         </td>
+
+
+                                        <td class="px-3 py-2 border">AI Learn</td>
+
                                         {{-- Thumbnail column - always visible --}}
                                         <td class="px-3 py-2 border">
                                             <img
@@ -139,25 +228,31 @@
                                             />
                                         </td>
 
-{{--                                        <td class="px-3 py-2 border">Analyze Image</td>--}}
-{{--                                        --}}{{-- Thumbnail column - always visible --}}
-{{--                                        <td class="px-3 py-2 border">--}}
-{{--                                            <img--}}
-{{--                                                src="{{ Storage::disk($photo->disk)->url($photo->path_thumb) }}"--}}
-{{--                                                alt="Image"--}}
-{{--                                                class="w-20 h-auto rounded"--}}
-{{--                                            />--}}
 
-{{--                                        </td>--}}
-
-
-                                        <td class="px-3 py-2 border">{{ $photo->product }}</td>
-                                        <td class="px-3 py-2 border">{{ $photo->size }}</td>
-                                        <td class="px-3 py-2 border">{{ $photo->type }}</td>
+                                        <td class="px-3 py-2 border">{{ $photo->product_name ?? $photo->product }}</td>
+                                        <td class="px-3 py-2 border">{{ $photo->product_size ?? $photo->size }}</td>
                                         <td class="px-3 py-2 border">{{ $photo->installationStatus }}</td>
-                                        <td class="px-3 py-2 border">{{ $photo->confidence }}</td>
                                         <td class="px-3 py-2 border">{{ $photo->created_at }}</td>
                                         <td class="px-3 py-2 border">{{ $photo->updated_at }}</td>
+                                        <td class="px-3 py-2 border whitespace-nowrap">
+                                            <form
+                                                action="{{ route('photos.destroy', $photo->id) }}"
+                                                method="POST"
+                                                class="inline"
+                                                onsubmit="return confirm('Delete this photo? This cannot be undone.')"
+                                            >
+                                                @csrf
+                                                @method('DELETE')
+
+                                                <button
+                                                    type="submit"
+                                                    class="px-2 py-1 text-xs font-semibold rounded bg-red-600 text-white hover:bg-red-700"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </td>
+
                                     </tr>
                                 @endforeach
                                 </tbody>
@@ -170,6 +265,7 @@
 
         </div>
     </div>
+
     {{-- Manual Metadata Modal --}}
     <div
         id="meta-modal"
@@ -273,6 +369,86 @@
     </div>
 
 
+    {{-- Image Preview Modal --}}
+    <div
+        id="image-modal"
+        class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80"
+    >
+        <div class="relative w-[95vw] h-[95vh] flex flex-col">
+            {{-- Top bar --}}
+            <div class="flex items-start justify-between gap-4 p-4 text-white">
+                <div class="min-w-0">
+                    <div id="image-modal-filename" class="text-base font-semibold truncate"></div>
+                    <div class="mt-1 text-sm text-white/80">
+                        <span id="image-modal-product"></span>
+                        <span class="mx-2">•</span>
+                        <span id="image-modal-size"></span>
+                        <span class="mx-2">•</span>
+                        <span id="image-modal-status"></span>
+                    </div>
+                </div>
+
+                <button
+                    type="button"
+                    id="image-modal-close"
+                    class="shrink-0 text-sm px-3 py-1 bg-black/60 rounded hover:bg-black"
+                >
+                    ✕ Close
+                </button>
+            </div>
+
+            {{-- Image area --}}
+            <div class="flex-1 px-4 pb-4">
+                <div
+                    id="image-modal-viewport"
+                    class="w-full h-full flex items-center justify-center overflow-hidden rounded-lg"
+                >
+                    <img
+                        id="image-modal-img"
+                        src=""
+                        alt="Full size preview"
+                        class="max-w-full max-h-full object-contain bg-white select-none cursor-zoom-in"
+                        draggable="false"
+                    >
+                </div>
+            </div>
+
+        </div>
+    </div>
+    {{-- EXIF Modal --}}
+    <div
+        id="exif-modal"
+        class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80"
+    >
+        <div class="relative w-[95vw] h-[95vh] bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden flex flex-col">
+            {{-- Top bar --}}
+            <div class="flex items-start justify-between gap-4 p-4 border-b border-gray-200 dark:border-gray-700">
+                <div class="min-w-0">
+                    <div class="text-base font-semibold text-gray-900 dark:text-gray-100 truncate">
+                        EXIF Data
+                    </div>
+                    <div id="exif-modal-filename" class="mt-1 text-sm text-gray-600 dark:text-gray-300 truncate"></div>
+                </div>
+
+                <button
+                    type="button"
+                    id="exif-modal-close"
+                    class="shrink-0 text-sm px-3 py-1 bg-gray-900 text-white rounded hover:bg-black"
+                    aria-label="Close EXIF modal"
+                >
+                    ✕ Close
+                </button>
+            </div>
+
+            {{-- Content --}}
+            <div class="flex-1 p-4 overflow-auto">
+            <pre
+                id="exif-modal-content"
+                class="whitespace-pre-wrap text-xs text-gray-900 dark:text-gray-100"
+            ></pre>
+            </div>
+        </div>
+    </div>
 
 
     {{-- Dropzone CSS --}}
@@ -284,12 +460,12 @@
     <style>
         /* Custom Dropzone styling integrated with Tailwind container */
         #learn-dropzone {
-            width: 90vw;              /* 90 percent of viewport width */
+            width: 90vw;
             max-width: 100%;
             margin: 0 auto;
-            border: 3px dashed #9ca3af;  /* gray-400 */
+            border: 3px dashed #9ca3af;
             border-radius: 0.75rem;
-            background: #f9fafb;         /* gray-50 */
+            background: #f9fafb;
             padding: 2.5rem 1.5rem;
             text-align: center;
             cursor: pointer;
@@ -297,156 +473,245 @@
 
         #learn-dropzone .dz-message {
             font-size: 1.1rem;
-            color: #4b5563; /* gray-700 */
+            color: #4b5563;
         }
+        #image-modal-img {
+            transition: transform 80ms linear;
+        }
+
     </style>
 
     {{-- Dropzone JS --}}
     <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
 
+    {{-- Dropdown controller: load sizes + show/hide dropzone --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const installEl = document.getElementById('installation_status');
+            const productEl = document.getElementById('product_id');
+            const sizeEl = document.getElementById('product_size_id');
+            const dropzoneWrapper = document.getElementById('dropzone-wrapper');
+            const hintEl = document.getElementById('selection-hint');
+
+            if (!installEl || !productEl || !sizeEl || !dropzoneWrapper) return;
+
+            function allSelected() {
+                return Boolean(installEl.value && productEl.value && sizeEl.value);
+            }
+
+            function showDropzone() {
+                dropzoneWrapper.classList.remove('hidden');
+                requestAnimationFrame(() => {
+                    dropzoneWrapper.classList.remove('opacity-0', 'pointer-events-none');
+                });
+            }
+
+            function hideDropzone() {
+                dropzoneWrapper.classList.add('opacity-0', 'pointer-events-none');
+                setTimeout(() => {
+                    dropzoneWrapper.classList.add('hidden');
+                }, 300);
+            }
+
+            function updateDropzoneVisibility() {
+                if (allSelected()) {
+                    showDropzone();
+                    if (hintEl) hintEl.textContent = 'Ready to upload.';
+                } else {
+                    hideDropzone();
+                    if (hintEl) hintEl.textContent = 'Select installation status, product, and product size to enable uploads.';
+                }
+            }
+
+            function setSizeLoading() {
+                sizeEl.disabled = true;
+                sizeEl.innerHTML = '<option value="">Loading sizes...</option>';
+            }
+
+            function resetSizes() {
+                sizeEl.disabled = true;
+                sizeEl.innerHTML = '<option value="">Select size</option>';
+                sizeEl.value = '';
+            }
+
+            async function loadSizes(productId) {
+                resetSizes();
+                updateDropzoneVisibility();
+
+                if (!productId) return;
+
+                setSizeLoading();
+
+                try {
+                    const res = await fetch("{{ url('/products') }}/" + productId + "/sizes", {
+                        headers: { 'Accept': 'application/json' }
+                    });
+
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+
+                    const sizes = await res.json();
+
+                    sizeEl.innerHTML = '<option value="">Select size</option>';
+
+                    if (!Array.isArray(sizes) || sizes.length === 0) {
+                        sizeEl.innerHTML = '<option value="">No sizes found</option>';
+                        sizeEl.disabled = true;
+                        updateDropzoneVisibility();
+                        return;
+                    }
+
+                    sizes.forEach(s => {
+                        const opt = document.createElement('option');
+                        opt.value = s.id;
+                        opt.textContent = s.size;
+                        sizeEl.appendChild(opt);
+                    });
+
+                    sizeEl.disabled = false;
+                    updateDropzoneVisibility();
+                } catch (err) {
+                    console.error('Failed to load sizes', err);
+                    sizeEl.innerHTML = '<option value="">Error loading sizes</option>';
+                    sizeEl.disabled = true;
+                    updateDropzoneVisibility();
+                }
+            }
+
+            installEl.addEventListener('change', updateDropzoneVisibility);
+
+            productEl.addEventListener('change', function () {
+                loadSizes(productEl.value);
+            });
+
+            sizeEl.addEventListener('change', updateDropzoneVisibility);
+
+            // Initial state
+            resetSizes();
+            updateDropzoneVisibility();
+        });
+    </script>
+
+    {{-- Dropzone init: append metadata + block uploads if not selected --}}
     <script>
         Dropzone.autoDiscover = false;
-        console.log('analyzeImage 1A ');
-
 
         document.addEventListener('DOMContentLoaded', function () {
-            console.log('analyzeImage 2 ');
             const dropzoneEl = document.getElementById('learn-dropzone');
             if (!dropzoneEl) return;
-            console.log('analyzeImage 2 a');
-            // Guard: prevent "Dropzone already attached."
-            if (dropzoneEl.dropzone) return;
-            console.log('analyzeImage 2 b ');
-            const dz = new Dropzone(dropzoneEl, {
-                paramName: "file",
-                maxFilesize: 200,
-                parallelUploads: 10,
-                uploadMultiple: false, // ✅ IMPORTANT: one file per request
-                timeout: 300000,
-                maxFiles: 50,
-                acceptedFiles: "image/*",
-                headers: {
-                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.content || "{{ csrf_token() }}"
-                },
 
+            const spinner = document.getElementById('upload-spinner');
+            const statusEl = document.getElementById('upload-status');
+            const imageWrapper = document.getElementById('uploaded-image-wrapper');
+            const imageEl = document.getElementById('uploaded-image');
+            const dropzoneWrapper = document.getElementById('dropzone-wrapper');
+            const uploadAnotherBtn = document.getElementById('upload-another-btn');
+            const dzMessage = document.querySelector('#learn-dropzone .dz-message');
 
+            const installEl = document.getElementById('installation_status');
+            const productEl = document.getElementById('product_id');
+            const sizeEl = document.getElementById('product_size_id');
 
-                init: function () {
-                    const dz = this;
+            function allSelected() {
+                return Boolean(installEl?.value && productEl?.value && sizeEl?.value);
+            }
 
-                    const spinner = document.getElementById('upload-spinner');
-                    const statusEl = document.getElementById('upload-status');
-                    const imageWrapper = document.getElementById('uploaded-image-wrapper');
-                    const imageEl = document.getElementById('uploaded-image');
-                    const dropzoneWrapper = document.getElementById('dropzone-wrapper');
-                    const uploadAnotherBtn = document.getElementById('upload-another-btn');
-                    const dzMessage = document.querySelector('#learn-dropzone .dz-message');
+            function hideDropzone() {
+                if (!dropzoneWrapper) return;
+                dropzoneWrapper.classList.add('opacity-0', 'pointer-events-none');
+                setTimeout(() => dropzoneWrapper.classList.add('hidden'), 300);
+            }
 
-                    dz.on("sending", function () {
-                        dropzoneWrapper.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
-                        spinner.classList.remove('hidden');
-                        statusEl.textContent = 'Uploading file...';
-                    });
-
-                    dz.on("success", function (file, response) {
-                        // Hide spinner
-                        spinner.classList.add('hidden');
-
-                        // Basic guard in case the backend returned HTML or a string
-                        if (!response || typeof response !== 'object') {
-                            statusEl.textContent = 'Upload completed, but response was not valid JSON.';
+            // Reuse existing instance if already attached, otherwise create it.
+// Reuse existing instance if already attached, otherwise create it.
+            let dz = dropzoneEl.dropzone;
+            if (!dz) {
+                dz = new Dropzone(dropzoneEl, {
+                    paramName: "file",
+                    maxFilesize: 200,
+                    parallelUploads: 10,
+                    uploadMultiple: false, // ✅ IMPORTANT: one file per request
+                    timeout: 300000,
+                    maxFiles: 50,
+                    acceptedFiles: "image/*",
+                    headers: {
+                        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.content || "{{ csrf_token() }}"
+                    },
+                    accept: function (file, done) {
+                        if (!allSelected()) {
+                            done("Please select installation status, product, and product size before uploading.");
                             return;
                         }
-
-                        // Handle app-level errors
-                        if (!response.success) {
-                            statusEl.textContent = response.message || 'Upload failed.';
-                            return;
-                        }
-
-                        // Update UI with returned URLs (prefer scaled, fallback original)
-                        const imgUrl = response?.urls?.scaled || response?.urls?.original || null;
-
-                        if (imgUrl) {
-                            imageEl.src = imgUrl;
-                            imageWrapper.classList.remove('hidden');
-                            statusEl.textContent = 'Upload complete.';
-                        } else {
-                            statusEl.textContent = 'Upload complete, but no image URL was returned.';
-                        }
-
-                        // Optional: store predict payload if you want to render it on this page
-                        // console.log('Predict payload:', response.predict);
-
-                        // Hide Dropzone message if you want
-                        if (dzMessage) dzMessage.classList.add('hidden');
-
-                        // Show "Upload another" button
-                        if (uploadAnotherBtn) {
-                            uploadAnotherBtn.classList.remove('hidden');
-                            uploadAnotherBtn.classList.remove('opacity-0', 'pointer-events-none');
-                        }
-
-                        // Redirect if you want to navigate to analyze page
-                        // If you want to show results on the SAME page, remove this block.
-                        if (response.redirectUrl) {
-                            window.location.href = response.redirectUrl;
-                        }
-                    });
-                    console.log('analyzeImage 4 ');
-                    dz.on("error", function (file, errorMessage, xhr) {
-                        spinner.classList.add('hidden');
-
-                        // Try to extract Laravel validation errors / JSON message
-                        let msg = 'Upload failed.';
-                        if (xhr && xhr.responseText) {
-                            try {
-                                const data = JSON.parse(xhr.responseText);
-                                msg = data.message || msg;
-
-                                // If Laravel validation errors exist, show the first one
-                                if (data.errors) {
-                                    const firstKey = Object.keys(data.errors)[0];
-                                    if (firstKey && data.errors[firstKey]?.length) {
-                                        msg = data.errors[firstKey][0];
-                                    }
-                                }
-                            } catch (e) {
-                                // If response isn't JSON, fall back to Dropzone's message
-                                if (typeof errorMessage === 'string') msg = errorMessage;
-                            }
-                        } else if (typeof errorMessage === 'string') {
-                            msg = errorMessage;
-                        }
-
-                        statusEl.textContent = msg;
-                    });
-                    console.log('analyzeImage 5');
-                    // Optional: clean reset for "Upload another"
-                    if (uploadAnotherBtn) {
-                        uploadAnotherBtn.addEventListener('click', function () {
-                            dz.removeAllFiles(true);
-                            imageWrapper.classList.add('hidden');
-                            imageEl.src = '';
-                            statusEl.textContent = '';
-                            if (dzMessage) dzMessage.classList.remove('hidden');
-                        });
+                        done();
                     }
+                });
+            }
+
+// Prevent binding handlers multiple times
+            if (dz.__learnImgBound) return;
+            dz.__learnImgBound = true;
+
+            dz.on("sending", function (file, xhr, formData) {
+                formData.set("installationStatus", document.getElementById('installation_status')?.value || '');
+                formData.set("product_id", document.getElementById('product_id')?.value || '');
+                formData.set("product_size_id", document.getElementById('product_size_id')?.value || '');
+
+                if (spinner) spinner.classList.remove('hidden');
+                if (statusEl) statusEl.textContent = 'Uploading file...';
+            });
+
+            dz.on("success", function (file, response) {
+                dz.removeFile(file);
+                if (spinner) spinner.classList.add('hidden');
+
+                if (dzMessage) dzMessage.textContent = 'Uploaded. Continuing...';
+
+                // Do NOT hide dropzone per-file when batch uploading
+                // hideDropzone(); // optional: comment out while doing multiple uploads
+            });
+
+            dz.on("queuecomplete", function () {
+                if (dzMessage) dzMessage.textContent = 'All uploads complete. Updating grid...';
+                setTimeout(() => window.location.reload(), 800);
+            });
+
+            dz.on("error", function (file, errorMessage, xhr) {
+                if (spinner) spinner.classList.add('hidden');
+
+                let msg = 'Error uploading file.';
+                if (xhr && xhr.responseText) {
+                    try {
+                        const res = JSON.parse(xhr.responseText);
+                        if (res.errors) msg = Object.values(res.errors).flat().join(' ');
+                        else if (res.message) msg = res.message;
+                    } catch (e) {}
+                } else if (typeof errorMessage === 'string') {
+                    msg = errorMessage;
                 }
 
+                if (statusEl) statusEl.textContent = 'Error uploading file: ' + msg;
+                console.error('Dropzone error details:', { file, errorMessage, xhr });
             });
-        });
 
+
+            if (uploadAnotherBtn) {
+                uploadAnotherBtn.addEventListener('click', function () {
+                    if (statusEl) statusEl.textContent = '';
+                    if (dzMessage) {
+                        dzMessage.textContent =
+                            'Please drop photos here that you would like the AI engine to learn. You can also click to browse for files.';
+                    }
+                    uploadAnotherBtn.classList.add('hidden');
+                }, { once: true });
+            }
+        });
     </script>
+
 
     <script>
         function openMetaModal(photoId) {
             const modal = document.getElementById('meta-modal');
             const idInput = document.getElementById('meta-photo-id');
             const statusEl = document.getElementById('meta-status');
-            console.error('Meta modal '+modal);
-            console.error('Meta idInput '+idInput);
-            console.error('Meta statusEl '+statusEl);
 
             if (!modal || !idInput) {
                 console.error('Meta modal elements not found');
@@ -456,7 +721,6 @@
             idInput.value = photoId;
             statusEl.textContent = '';
 
-            // Clear previous values
             const productEl = document.getElementById('meta-product');
             const sizeEl = document.getElementById('meta-size');
             const statusSelect = document.getElementById('meta-installationStatus');
@@ -514,16 +778,12 @@
                 })
                     .then(response => response.json())
                     .then(data => {
-                        console.log('Meta save response:', data);
-
                         if (!data.success) {
                             statusEl.textContent = 'Error saving metadata.';
                             return;
                         }
 
                         modal.classList.add('hidden');
-
-                        // Easiest way to see updated table
                         window.location.reload();
                     })
                     .catch(error => {
@@ -534,34 +794,422 @@
         });
     </script>
 
+    {{--    <script>--}}
+    {{--        document.addEventListener('DOMContentLoaded', function () {--}}
+    {{--            const buttons = document.querySelectorAll('.exif-toggle-btn');--}}
 
+    {{--            buttons.forEach(function (btn) {--}}
+    {{--                btn.addEventListener('click', function () {--}}
+    {{--                    const row = btn.closest('td');--}}
+    {{--                    if (!row) return;--}}
+
+    {{--                    const exifBlock = row.querySelector('.exif-content');--}}
+    {{--                    const label = btn.querySelector('.exif-toggle-label');--}}
+
+    {{--                    if (!exifBlock) return;--}}
+
+    {{--                    const isHidden = exifBlock.classList.contains('hidden');--}}
+
+    {{--                    if (isHidden) {--}}
+    {{--                        exifBlock.classList.remove('hidden');--}}
+    {{--                        if (label) label.textContent = 'Hide';--}}
+    {{--                    } else {--}}
+    {{--                        exifBlock.classList.add('hidden');--}}
+    {{--                        if (label) label.textContent = 'Show';--}}
+    {{--                    }--}}
+    {{--                });--}}
+    {{--            });--}}
+    {{--        });--}}
+    {{--    </script>--}}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const buttons = document.querySelectorAll('.exif-toggle-btn');
+            const modal = document.getElementById('exif-modal');
+            const closeBtn = document.getElementById('exif-modal-close');
+            const contentEl = document.getElementById('exif-modal-content');
+            const filenameEl = document.getElementById('exif-modal-filename');
 
-            buttons.forEach(function (btn) {
-                btn.addEventListener('click', function () {
-                    const row = btn.closest('td');
-                    if (!row) return;
+            if (!modal || !contentEl) return;
 
-                    const exifBlock = row.querySelector('.exif-content');
-                    const label = btn.querySelector('.exif-toggle-label');
+            function closeExifModal() {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                contentEl.textContent = '';
+                if (filenameEl) filenameEl.textContent = '';
+            }
 
-                    if (!exifBlock) return;
+            function openExifModal(exifValue, filename) {
+                let text = '';
 
-                    const isHidden = exifBlock.classList.contains('hidden');
-
-                    if (isHidden) {
-                        exifBlock.classList.remove('hidden');
-                        if (label) label.textContent = 'Hide';
-                    } else {
-                        exifBlock.classList.add('hidden');
-                        if (label) label.textContent = 'Show';
+                if (exifValue === null || exifValue === undefined || exifValue === '') {
+                    text = 'No EXIF data found.';
+                } else if (typeof exifValue === 'string') {
+                    // If it is already a JSON string, try to pretty-print it
+                    try {
+                        const parsed = JSON.parse(exifValue);
+                        text = JSON.stringify(parsed, null, 2);
+                    } catch (e) {
+                        text = exifValue;
                     }
+                } else {
+                    // Object/array
+                    text = JSON.stringify(exifValue, null, 2);
+                }
+
+                contentEl.textContent = text;
+                if (filenameEl) filenameEl.textContent = filename ? `File: ${filename}` : '';
+
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+
+            document.querySelectorAll('.exif-toggle-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    const exif = btn.dataset.exif;
+                    const filename = btn.dataset.filename || '';
+                    openExifModal(exif, filename);
                 });
+            });
+
+            if (closeBtn) closeBtn.addEventListener('click', closeExifModal);
+
+            // Click outside the dialog closes
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) closeExifModal();
+            });
+
+            // ESC closes
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                    closeExifModal();
+                }
             });
         });
     </script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const installEl = document.getElementById('installation_status');
+            const productEl = document.getElementById('product_id');
+            const sizeEl = document.getElementById('product_size_id');
+
+            const dzInstall = document.getElementById('dz-installationStatus');
+            const dzProduct = document.getElementById('dz-product_id');
+            const dzSize = document.getElementById('dz-product_size_id');
+
+            function syncHidden() {
+                if (dzInstall) dzInstall.value = installEl?.value || '';
+                if (dzProduct) dzProduct.value = productEl?.value || '';
+                if (dzSize) dzSize.value = sizeEl?.value || '';
+            }
+
+            if (installEl) installEl.addEventListener('change', syncHidden);
+            if (productEl) productEl.addEventListener('change', syncHidden);
+            if (sizeEl) sizeEl.addEventListener('change', syncHidden);
+
+            // initial
+            syncHidden();
+        });
+    </script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const modal = document.getElementById('image-modal');
+            const viewport = document.getElementById('image-modal-viewport');
+            const modalImg = document.getElementById('image-modal-img');
+            const closeBtn = document.getElementById('image-modal-close');
+
+            const filenameEl = document.getElementById('image-modal-filename');
+            const productEl = document.getElementById('image-modal-product');
+            const sizeEl = document.getElementById('image-modal-size');
+            const statusEl = document.getElementById('image-modal-status');
+
+            if (!modal || !viewport || !modalImg) return;
+
+            // Zoom state
+            let scale = 1;
+            let translateX = 0;
+            let translateY = 0;
+
+            let isPanning = false;
+            let panStartX = 0;
+            let panStartY = 0;
+
+            const MIN_SCALE = 1;
+            const MAX_SCALE = 6;
+            const CLICK_ZOOM = 2;
+
+            function applyTransform() {
+                modalImg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+                modalImg.style.transformOrigin = 'center center';
+
+                if (scale > 1) {
+                    modalImg.classList.remove('cursor-zoom-in');
+                    modalImg.classList.add('cursor-grab');
+                } else {
+                    modalImg.classList.remove('cursor-grab');
+                    modalImg.classList.add('cursor-zoom-in');
+                }
+            }
+
+            function resetZoom() {
+                scale = 1;
+                translateX = 0;
+                translateY = 0;
+                isPanning = false;
+                applyTransform();
+            }
+
+            function clampScale(next) {
+                return Math.min(MAX_SCALE, Math.max(MIN_SCALE, next));
+            }
+
+            function closeModal() {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                modalImg.src = '';
+
+                if (filenameEl) filenameEl.textContent = '';
+                if (productEl) productEl.textContent = '';
+                if (sizeEl) sizeEl.textContent = '';
+                if (statusEl) statusEl.textContent = '';
+
+                resetZoom();
+            }
+
+            function openModalFromThumb(thumbEl) {
+                const fullSrc = thumbEl.getAttribute('data-full');
+                if (!fullSrc) return;
+
+                modalImg.src = fullSrc;
+
+                if (filenameEl) filenameEl.textContent = thumbEl.getAttribute('data-filename') || '';
+                if (productEl) productEl.textContent = thumbEl.getAttribute('data-product') || '';
+                if (sizeEl) sizeEl.textContent = thumbEl.getAttribute('data-size') || '';
+                if (statusEl) statusEl.textContent = thumbEl.getAttribute('data-status') || '';
+
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+
+                resetZoom();
+            }
+
+            // Open modal on thumbnail click
+            document.querySelectorAll('.thumbnail-click').forEach(img => {
+                img.addEventListener('click', function () {
+                    openModalFromThumb(this);
+                });
+            });
+
+            // Close button
+            if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+            // Click outside (background)
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) closeModal();
+            });
+
+            // ESC
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') closeModal();
+            });
+
+            // Toggle zoom on click (on the image only)
+            modalImg.addEventListener('click', function (e) {
+                e.stopPropagation(); // don't trigger background close
+
+                if (scale === 1) {
+                    scale = CLICK_ZOOM;
+                } else {
+                    resetZoom();
+                    return;
+                }
+
+                applyTransform();
+            });
+
+            // Double click zoom in/out
+            modalImg.addEventListener('dblclick', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (scale < CLICK_ZOOM) {
+                    scale = CLICK_ZOOM;
+                } else {
+                    resetZoom();
+                    return;
+                }
+                applyTransform();
+            });
+
+            // Wheel zoom (trackpad/mouse)
+            viewport.addEventListener('wheel', function (e) {
+                // Allow normal scroll when modal is closed
+                if (modal.classList.contains('hidden')) return;
+
+                e.preventDefault();
+
+                const delta = e.deltaY;
+                const zoomFactor = delta > 0 ? 0.9 : 1.1;
+                const nextScale = clampScale(scale * zoomFactor);
+
+                // If we are at 1 and zooming out, keep it at 1
+                if (scale === 1 && nextScale === 1) return;
+
+                scale = nextScale;
+                applyTransform();
+            }, { passive: false });
+
+            // Pan by dragging when zoomed
+            modalImg.addEventListener('mousedown', function (e) {
+                if (scale <= 1) return;
+
+                isPanning = true;
+                modalImg.classList.remove('cursor-grab');
+                modalImg.classList.add('cursor-grabbing');
+
+                panStartX = e.clientX - translateX;
+                panStartY = e.clientY - translateY;
+                e.preventDefault();
+            });
+
+            window.addEventListener('mousemove', function (e) {
+                if (!isPanning) return;
+
+                translateX = e.clientX - panStartX;
+                translateY = e.clientY - panStartY;
+                applyTransform();
+            });
+
+            window.addEventListener('mouseup', function () {
+                if (!isPanning) return;
+                isPanning = false;
+
+                modalImg.classList.remove('cursor-grabbing');
+                if (scale > 1) modalImg.classList.add('cursor-grab');
+            });
+
+            // Touch support: pinch-to-zoom is non-trivial without a lib.
+            // If you want mobile pinch, tell me and I'll add it cleanly.
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const flash = document.getElementById('flash-message');
+            if (!flash) return;
+
+            setTimeout(() => {
+                flash.classList.add('opacity-0');
+
+                // Remove from DOM after fade completes
+                setTimeout(() => {
+                    flash.remove();
+                }, 500);
+            }, 3000); // 3 seconds
+        });
+    </script>
+
+    <script>
+        function onlyBreakAfterCloseComma(jsonPretty) {
+            // Insert a CRLF only when a comma comes right after a closing } or ]
+            // Keeps normal commas untouched.
+            return jsonPretty
+                .replace(/},/g, '},\r\n')
+                .replace(/],/g, '],\r\n');
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const modal = document.getElementById('exif-modal');
+            const closeBtn = document.getElementById('exif-modal-close');
+            const contentEl = document.getElementById('exif-modal-content');
+            const filenameEl = document.getElementById('exif-modal-filename');
+
+            if (!modal || !contentEl) return;
+
+            function closeExifModal() {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                contentEl.textContent = '';
+                if (filenameEl) filenameEl.textContent = '';
+            }
+
+            // function openExifModal(exifValue, filename) {
+            //     let text = '';
+            //
+            //     if (exifValue === null || exifValue === undefined || exifValue === '') {
+            //         text = 'No EXIF data found.';
+            //     } else if (typeof exifValue === 'string') {
+            //         try {
+            //             const parsed = JSON.parse(exifValue);
+            //             text = JSON.stringify(parsed, null, 2);
+            //         } catch (e) {
+            //             text = exifValue;
+            //         }
+            //     } else {
+            //         text = JSON.stringify(exifValue, null, 2);
+            //     }
+            //
+            //     // ✅ apply your “only CRLF after }, (and ],)” rule
+            //     text = onlyBreakAfterCloseComma(text);
+            //
+            //     contentEl.textContent = text;
+            //     if (filenameEl) filenameEl.textContent = filename ? `File: ${filename}` : '';
+            //
+            //     modal.classList.remove('hidden');
+            //     modal.classList.add('flex');
+            // }
+
+            function openExifModal(exifValue, filename) {
+                let text = '';
+
+                if (exifValue === null || exifValue === undefined || exifValue === '') {
+                    text = 'No EXIF data found.';
+                } else if (typeof exifValue === 'string') {
+                    try {
+                        const parsed = JSON.parse(exifValue);
+                        text = JSON.stringify(parsed, null, 2);
+                    } catch (e) {
+                        text = exifValue;
+                    }
+                } else {
+                    text = JSON.stringify(exifValue, null, 2);
+                }
+
+                // ✅ RIGHT HERE: transform the string before rendering it
+                text = onlyBreakAfterCloseComma(text);
+
+                // ✅ THEN render it
+                contentEl.textContent = text;
+
+                if (filenameEl) filenameEl.textContent = filename ? `File: ${filename}` : '';
+
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+
+            document.querySelectorAll('.exif-toggle-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    const exif = btn.dataset.exif;
+                    const filename = btn.dataset.filename || '';
+                    openExifModal(exif, filename);
+                });
+            });
+
+            if (closeBtn) closeBtn.addEventListener('click', closeExifModal);
+
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) closeExifModal();
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                    closeExifModal();
+                }
+            });
+        });
+    </script>
+
 
 
 
