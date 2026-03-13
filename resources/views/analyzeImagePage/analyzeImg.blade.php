@@ -318,9 +318,11 @@
             if (dropzoneEl.dropzone) return;
             console.log('analyzeImage 2 b ');
             const dz = new Dropzone(dropzoneEl, {
+                url: "/upload-photo",
+                method: "post",
                 paramName: "file",
                 maxFilesize: 15,
-                acceptedFiles: "image/*",
+                acceptedFiles: ".jpg,.jpeg,.png,.webp",
                 headers: {
                     "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.content || "{{ csrf_token() }}"
                 },
