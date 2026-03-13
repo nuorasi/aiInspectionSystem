@@ -41,40 +41,13 @@
                                 </select>
                             </div>
 
-                            {{-- Product --}}
-                            <div>
-                                <label for="product_id" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                                    Product
-                                </label>
-                                <select
-                                    id="product_id"
-                                    class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900"
-                                >
-                                    <option value="">Select product</option>
-                                    @foreach ($products as $p)
-                                        <option value="{{ $p->id }}">{{ $p->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
+
 
                             {{-- Product Size (loads after product selection) --}}
-                            <div>
-                                <label for="product_size_id" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                                    Product Size
-                                </label>
-                                <select
-                                    id="product_size_id"
-                                    class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900"
-                                    disabled
-                                >
-                                    <option value="">Select size</option>
-                                </select>
-                            </div>
+
                         </div>
 
-                        <p id="selection-hint" class="mt-3 text-sm text-gray-600 dark:text-gray-300">
-                            Select Installation Status, Product, and Product Size to enable uploads.
-                        </p>
+
                     </div>
 
                     {{-- Dropzone wrapper for fade in / out --}}
