@@ -306,8 +306,11 @@
 
     <script>
         Dropzone.autoDiscover = false;
+        console.log('analyzeImage 1 ');
+
 
         document.addEventListener('DOMContentLoaded', function () {
+            console.log('analyzeImage 2 ');
             const dropzoneEl = document.getElementById('learn-dropzone');
             if (!dropzoneEl) return;
 
@@ -386,7 +389,7 @@
                             window.location.href = response.redirectUrl;
                         }
                     });
-
+                    console.log('analyzeImage 4 ');
                     dz.on("error", function (file, errorMessage, xhr) {
                         spinner.classList.add('hidden');
 
@@ -414,7 +417,7 @@
 
                         statusEl.textContent = msg;
                     });
-
+                    console.log('analyzeImage 5');
                     // Optional: clean reset for "Upload another"
                     if (uploadAnotherBtn) {
                         uploadAnotherBtn.addEventListener('click', function () {
