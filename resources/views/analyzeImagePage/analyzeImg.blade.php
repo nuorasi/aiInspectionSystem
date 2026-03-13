@@ -30,7 +30,7 @@
                     </div>
 
                     {{-- Dropzone wrapper for fade in / out --}}
-                    <div id="dropzone-wrapper" class="relative transition-opacity duration-500  opacity-0 pointer-events-none">
+                    <div id="dropzone-wrapper" class="relative transition-opacity duration-500  o  pointer-events-none">
                         <form
                             action="{{ route('photos.upload') }}"
                             method="post"
