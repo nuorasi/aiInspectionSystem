@@ -2,16 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 class PredictController extends Controller
 {
+    /**
+     * @throws ConnectionException
+     */
     public function upload(Request $request)
     {
         $request->validate([
-            //'file' => ['required', 'file', 'mimes:jpg,jpeg,png,webp', 'max:15360'], // 15MB
-            'file' =>   'required|image|mimes:jpg,jpeg,png|max:15360',
+         'file' => ['required', 'file', 'mimes:jpg,jpeg,png,webp', 'max:15360'], // 15MB
+           // 'file' =>   'required|image|mimes:jpg,jpeg,png|max:15360',
         ]);
 
         $file = $request->file('file');
